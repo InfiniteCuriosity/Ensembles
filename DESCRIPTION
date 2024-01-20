@@ -12,7 +12,7 @@ Description: A system for solving problems of numerical, classification, logisti
     to any numerical, classification, logistic or time series data set. Because the package creates indexed ensembles, the results from the Ensembles package
     typically meet or beat many published results by a wide margin. The vignetees in the Ensembles package provide examples where the Ensemble package beats other
     published results, including Kaggle contests by college students, by a wide margin. It is very strongly suggest start with the vignettes.
-License: GPL (>= 3)
+License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
