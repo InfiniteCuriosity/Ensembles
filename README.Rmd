@@ -1,0 +1,54 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# Ensembles
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of Ensembles is to use the power of both R and Python packages to automatically solve four types of supervised learning problems: Regression, Classification, Logistic Analysis, and Forecasting (time series). Each of the four functions completes the entire data science process automatically, and presents the finished results to the user. This includes splitting the data set up (train, test and validation), randomly automatically resampling the data sets, automatically building individual models using R and Python, automatically building weighted ensemble models from the predictions of the R and Python models, automatically sorting the output and presenting it to the user. The output is both visual (graphs and charts) and analytic (tables). The user is able to see all the results, and select a different top result if that is appropriate.
+
+## Installation
+
+You can install the development version of Ensembles like so:
+
+``` r
+
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(Ensembles)
+## basic example code
+```
+
+What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+
+```{r cars}
+summary(cars)
+```
+
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+
+You can also embed plots, for example:
+
+```{r pressure, echo = FALSE}
+plot(pressure)
+```
+
+In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.

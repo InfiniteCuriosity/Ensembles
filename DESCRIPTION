@@ -1,0 +1,71 @@
+Package: Ensembles
+Type: Package
+Title: Automates The Entire Data Science Process for Numerical, Classification, Logistic and Time Series Data, Using R and Pyton, Individual and Ensemble Models, Regular Learning and Deep Learning, All In One Package
+Version: 0.1.0
+Author: Russ Conte
+Maintainer: Russ Conte <russconte@mac.com>
+Description: A system for solving problems of numerical, classification, logistic and time series data. You only provide the data, and one line of code to tell the package about the data
+    and what you want returned, the package does everything else to build the optimal solution. This includes data visualizations, constructing individual models and indexed ensembles
+    using R and Python, creating regular learning and deep learning models, creating summary charts, tables and graphics, resampling as many times as you want, saving trained
+    models (if you want) for future use or to share, predicting on totally new data (if you want), and removing highly correlated predictors in the ensembles
+    (at any level you want, such as removing all features correlated above 0.95). The result is that the user receives a wide range of totally comprehensive solutions
+    to any numerical, classification, logistic or time series data set. Because the package creates indexed ensembles, the results from the Ensembles package
+    typically meet or beat many published results by a wide margin. The vignetees in the Ensembles package provide examples where the Ensemble package beats other
+    published results, including Kaggle contests by college students, by a wide margin. It is very strongly suggest start with the vignettes.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Depends:
+    arm,
+    brnn,
+    broom,
+    C50,
+    class,
+    corrplot,
+    Cubist,
+    dplyr,
+    e1071,
+    fable,
+    fable.prophet,
+    fabletools,
+    feasts,
+    gam,
+    gbm,
+    ggplot2,
+    glmnet,
+    graphics,
+    gridExtra,
+    gt,
+    gtExtras,
+    ipred,
+    kernlab,
+    klaR,
+    leaps,
+    MachineShop,
+    magrittr,
+    MASS,
+    mda,
+    Metrics,
+    neuralnet,
+    pls,
+    pROC,
+    purrr,
+    randomForest,
+    reactable,
+    reactablefmtr,
+    readr,
+    rpart,
+    scales,
+    stats,
+    tibble,
+    tidyr,
+    tree,
+    tsibble,
+    utils,
+    xgboost,
+    R (>= 2.10)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
