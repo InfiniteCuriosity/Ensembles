@@ -69,3 +69,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/InfiniteCuriosity/Ensembles
+BugReports: https://github.com/InfiniteCuriosity/Ensembles/issues
