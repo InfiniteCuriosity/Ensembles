@@ -214,7 +214,7 @@ Automatic results reported in Plots:
 
 12. Summary report, sorted by root mean squared error. Note that the lowest root mean squared error in our example is 0.1281.![Numerical results, sorted by root mean squared error](images/numerical_results.jpg){width="750"}
 
-### Did the automated results using the Ensembles package beat the best results by the college students in their 699 Kaggle submissions by more than 90%? Let's test that out:
+### Did the automated results using the Ensembles package beat the best results by the college students in their 699 Kaggle submissions by more than 90%? Let's test that claim:
 
 The college student scores are here: <https://www.kaggle.com/competitions/uou-g03784-2022-spring/leaderboard>
 
@@ -228,10 +228,64 @@ Test passed.
 
 ### Part 2: The Four Advanced Features in the Numerical Function
 
-2a What if there are categorical values in the data?
+#### 2a What if there are categorical values in the data?
 
-2b. How to reduce highly correlated predictors
+Many data sets have data that includes both numerical and categorical values. The only requirement from the Ensembles function is that the categorical values are factors. Once that is done, everything else will run as the example above (Boston Housing).
 
-2c. What if you have new data?
+Let's look at a quick example. In the ISLR package, there is a data set called Carseats. It has both numerical and categorical values. Let's look at the head of the data set:
 
-2d. Saving all trained models
+```{r Head of carseats data set}
+library(ISLR)
+head(ISLR::Carseats, n = 10)
+```
+
+The three categorical columns are ShelveLoc (the location of the item on the shelf: Good, Medium or Bad), Urban (Yes or No) and US (Yes or No).
+
+Let's see if the categorical columns are factors or not:
+
+```{r Test if the categorical columns in Carseats are factors}
+str(ISLR::Carseats)
+```
+
+When we run the numerical function, we will choose to convert the strings to numbers, so the numerical function will run without any incident.
+
+You can also set the data set up ahead of time so that all columns are numerical.
+
+Here is how the function is set up to measure Sales. Note that how_to_handle_strings is now set to 1, which converts the strings to numbers that the function can use:\
+\
+![How to handle strings](images/how_to_handle_strings.jpg)
+
+Once that is done, the function completes all the same steps as in the Boston Housing example. In this case the best holdout RMSE is 0.0475. Given that the mean of the sales price is 7.4963, the error is 0.006349799. Since the sale prices are in dollars, this is a little over 6/10 of a penny:
+
+```{r Calculating the error for the Sales value in the Carseats data set}
+0.0476/7.4963
+```
+
+Here is the top five results. Four of the top five results are ensembles, including the top two results:
+
+![Top five results for modeling the Sales price in the Carseats data set](images/top_five_results.jpg)
+
+#### 2b. How to reduce highly correlated predictors in the ensembles
+
+Continuing with the Carseats data set, the numerical function gives a report of the correlation values in the ensemble. That value can be adjusted to any value you wish. Let's start at the beginning.
+
+What are the correlation values in the current analysis? Here is an image of part of the correlation table, and it is easy to see many of these values are very high, for example, above 0.95:
+
+![Numerical ensemble highly correlated predictors (partial list)](images/Numberical_ensemble_highly_correlated_predictors-02.jpg)
+
+This is an extremely easy problem to solve using the Ensembles package. Simply chose the maximum value for the correlation, enter it into the values, and the function does the rest.
+
+For example, let's say we wanted only correlation values below 0.95. The function would be run like this:\
+![Remove ensemble correlations below 0.95](images/Remove_ensemble_correlations_below_0.95.jpg)
+
+The resulting ensemble does not have any predictors above 0.95. Let's test that claim:\
+\
+![No ensemble correlation above 0.95](images/Numerical_no_correlation_above_95.jpg)
+
+This results in a slight decrease in holdout RMSE, but not by a lot:\
+\
+![Table: No correlation in the ensembles above 0.95](images/table_no_correlation_above_095.jpg)
+
+#### 2c. What if you (or a colleague) have new data?
+
+#### 2d. Saving all trained models

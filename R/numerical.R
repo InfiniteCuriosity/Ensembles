@@ -2077,7 +2077,7 @@ for (i in 1:numresamples) {
   ensemble_rf_duration_mean <- mean(ensemble_rf_duration)
 
 
-  #### Ensembles Using ridge ####
+  #### Ensembles Using Ridge ####
   ensemble_ridge_start <- Sys.time()
 
   ensemble_y <- ensemble_train$y_ensemble
