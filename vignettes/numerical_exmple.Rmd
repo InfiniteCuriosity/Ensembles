@@ -1,3 +1,5 @@
+------------------------------------------------------------------------
+
 ---
 title: "numerical"
 output: rmarkdown::html_vignette
@@ -16,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Example 1: The fully automated solution in the Ensembles package beat all 699 entries from college students by more than 90%. Let's test that claim (spoiler alert: it's true), and show how you can use the same processes for any numerical data.
 
-Welcome to the numerical example of the Ensembles package. This vignette will walk you through each of the steps and features of the numerical function, allowing you to beat the best score in a Kaggle contest by 699 college students. The student results were the Spring term project for 49 teams with 699 entries. This solution using the Ensembles package will beat their best solution by more than 90%, and only require one line of code. The student results will be our baseline against which we will compare our results.
+Welcome to the numerical example of the Ensembles package. This vignette will walk you through each of the steps and features of the numerical function, allowing you to beat the best score in a Kaggle contest by 699 college students. The student results were the Spring term project for 49 teams with 699 entries. This solution using the Ensembles package will beat all submission, and best their best solution by more than 90% and only require one line of code. The student results will be our baseline against which we will compare our results.
 
 ### Background on the Boston housing data set
 
@@ -236,7 +238,7 @@ Let's look at a quick example. In the ISLR package, there is a data set called C
 
 ```{r Head of carseats data set}
 library(ISLR)
-head(ISLR::Carseats, n = 10)
+head(Carseats, n = 10)
 ```
 
 The three categorical columns are ShelveLoc (the location of the item on the shelf: Good, Medium or Bad), Urban (Yes or No) and US (Yes or No).
@@ -244,7 +246,7 @@ The three categorical columns are ShelveLoc (the location of the item on the she
 Let's see if the categorical columns are factors or not:
 
 ```{r Test if the categorical columns in Carseats are factors}
-str(ISLR::Carseats)
+str(Carseats)
 ```
 
 When we run the numerical function, we will choose to convert the strings to numbers, so the numerical function will run without any incident.
@@ -276,6 +278,7 @@ What are the correlation values in the current analysis? Here is an image of par
 This is an extremely easy problem to solve using the Ensembles package. Simply chose the maximum value for the correlation, enter it into the values, and the function does the rest.
 
 For example, let's say we wanted only correlation values below 0.95. The function would be run like this:\
+\
 ![Remove ensemble correlations below 0.95](images/Remove_ensemble_correlations_below_0.95.jpg)
 
 The resulting ensemble does not have any predictors above 0.95. Let's test that claim:\
@@ -288,4 +291,46 @@ This results in a slight decrease in holdout RMSE, but not by a lot:\
 
 #### 2c. What if you (or a colleague) have new data?
 
+This is the acid test of data science: How well does the solution work on totally new data. The Ensembles function makes that easy to do, and there are data sets in the package to demonstrate the results.
+
+We'll use a modified version of the Boston housing data set for our example. The Ensembles package contains a version of the Boston housing data set with the first five rows removed. We will run the analysis on this data set, and then test the 40 models on the first five rows.
+
+Let's start by doing the analysis on the Boston housing data set in the Ensembles package. Note that we are going to make "Y" when it asks if we have new [data:\\](data:\){.uri}\
+![Do you have new data?](images/do_you_have_new_data.jpg)
+
+When this code is run, the first step the function asks is the location of the new data. It can be on your computer or online. In this example, I'll use the NewBoston data that is part of the Ensembles package. Here's what the data looks like:
+
+![NewBoston data in the Ensembles package](images/NewBoston.jpg)\
+\
+When the function is run, the Console asks for the location of the new [data:\\](data:\){.uri} ![New Boston on my computer, using it for new data](images/NewBoston_location-01.jpg)
+
+The most accurate result (lowest RMSE) this time is Ensemble BayesGLM. Here's the evidence:
+
+![Analysis of Boston minus the first five rows](images/Analysis_of_new_boston-01.jpg)
+
+Let's test how well the model performed on the totally new data, compared to the mean error by the college students noted above. We'll compare the top row (true values) and the bottom row in this image (predictions from the Ensemble BayesGLM model):\
+\
+![Ensemble BayesGLM predictions on NewBoston data](images/Ensemble_BayesGLM_predictions.jpg)\
+\
+
+|                     | House 1 | House 2 | House 3 | House 4 | House 5 |
+|---------------------|---------|---------|---------|---------|---------|
+| True Value          | 24      | 21.6    | 34.7    | 33.4    | 36.2    |
+| BayesGLM Prediction | 24.7526 | 22.3231 | 35.7576 | 34.2442 | 37.1687 |
+| Error               | .7526   | 0.7231  | -1.0576 | -0.8442 | 0.9687  |
+
+The mean error is -0.7526 for the predictions for the five houses. Remember that the mean error for the college students was 2.412, and this error on unseen data is much less than the mean error by the best college students in that example.
+
+Test passed.
+
 #### 2d. Saving all trained models
+
+Last, it's extremely easy to save all the trained models. Simply chose "Y" to the question save_all_trained_models. The function saves all the trained models in the user's environment, which can be saved or shared with others. Here is the top of what that looks like:
+
+![Top of all trained models](images/all_trained_models.jpg)
+
+### Summary:
+
+The numeric function within the Ensembles package allows you do to analysis of numeric data. It automatically makes 40 models, randomizes the rows, uses R and Python, and presents comprehensive results for you to use. The advanced features also allow you to make predictions on unseen data, save all trained models, set the correlation for the ensemble to any value you wish, and convert strings to numbers so the function will run.
+
+Best wishes with the function,

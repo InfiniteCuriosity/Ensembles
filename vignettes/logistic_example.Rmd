@@ -14,6 +14,71 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+### Example: The diabetes data set, modeling the presence or absence of diabetes.
+
+The fully automated solution will beat all 297 entries by college students on the Diabetes data set. The leaderboard for the college students is here: <https://www.kaggle.com/competitions/mlea-m-test/leaderboard>
+
+Background on the diabetes millitius data set.
+
+"This dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases. The objective of the datasetis to diagnostically predict whether or not a patient has diabetes, based on certain diagnostic measurements included in the dataset."
+
+Let's start by taking a look at the first ten rows of the diabetes data set:
+
+```{r Look at the first ten rows of the diabetes data set}
 library(Ensembles)
+head(diabetes)
 ```
+
+All of the values are integers or doubles. The last column, Outcome, is an integer. We will model the outcome (1 or 0).
+
+Let's check for any missing values in the diabetes data set:
+
+```{r Check for missing values in the diabetes data set}
+sum(is.na(diabetes))
+```
+
+Great, there are 0 missing values!
+
+Let's confirm that all the values are numbers (there are no strings, etc.)
+
+```{r Confirm all values are numbers}
+str(diabetes)
+```
+
+This confirms all values are numbers. Great!
+
+### Minimal example using the logistic function.
+
+We will start by looking at the parts of the logistic function:
+
+![Logistic function](images/logistic_function.jpg)
+
+The 'data' can either be a a data set from an R package, or a link to a csv file. The csv file can be on your system, or online. In this example we are using MASS::Boston as our data.
+
+'colnum' is the column number. In this case we are looking at column 14, the median value of the house. This is the same as the column number by the college students, and virtually everyone else who works on the Boston housing data set.
+
+'numresamples' is the first of several features to make the results reproducible. The numerical function will randomly resample the data the number of times you chose. For now we have selected 5, but you may pick any value you wish. As you will see, a higher the number of resamples will make the results more reproducible.
+
+For now we will skip these four features and come back to those in a little bit: 'how_to_handle_strings', 'do_you_have_new_data', 'save_all_trained_models', and 'remove_ensemble_correlations_greater_than'. In our example here, they are all set to values where they will be used this time, we will use them in a few minutes.
+
+\### Setting up train, test and validation amounts.Set the train, test and validation to values you wish to use. A very good set of values is:
+
+train: 0.60
+
+test: 0.20
+
+validation: 0.20
+
+We have used these values in this example.
+
+Once it starts, what does this function do?
+
+1\. It sets up the number of resamples you chose. That number is 5 in this example.
+
+2\. It randomly and automatically separates the data (in this case Boston housing) into train, test and validation sets.
+
+3\. It randomizes the rows for each resample. This helps with reproducibility.
+
+4\. It automatically builds models on 23 solution methods (full list below). The models are in alphabetical order, to make it easier to find and use. The function will fit the model on the training data, then make predictions on both the test and validation data. It will measure the root mean squared error for each model. It will save each result, so that a mean result of all the resamples may be determined and reported back to the user.
+
+Automatically building 25 models

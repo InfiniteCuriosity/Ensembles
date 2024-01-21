@@ -13,42 +13,58 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Ensembles
+# Ensembles: The data science set of tools I have always wanted but could not find anywhere, so I made it myself.
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-The goal of Ensembles is to use the power of both R and Python packages to automatically solve four types of supervised learning problems: Regression, Classification, Logistic Analysis, and Forecasting (time series). Each of the four functions completes the entire data science process automatically, and presents the finished results to the user. This includes splitting the data set up (train, test and validation), randomly automatically resampling the data sets, automatically building individual models using R and Python, automatically building weighted ensemble models from the predictions of the R and Python models, automatically sorting the output and presenting it to the user. The output is both visual (graphs and charts) and analytic (tables). The user is able to see all the results, and select a different top result if that is appropriate.
+The goal of Ensembles is to use the power of both R and Python packages to automatically solve four types of supervised learning problems: Regression, Classification, Logistic Analysis, and Forecasting (time series). Each of the four functions in the Ensembles package completes the entire data science process automatically, and presents the finished results to the user. This includes splitting the data set up (train, test and validation), randomly resampling the data sets, automatically building individual models using R and Python, automatically building weighted ensemble models from the predictions of the R and Python models, automatically sorting the output and presenting it to the user. The output is both visual (graphs and charts) and analytic (tables). The user is able to see all the results, and select a different top result if that is appropriate.
+
+All of the models are built automatically, and do not return any errors or warnings, there are no typos, no grammar errors, no misplaced commas or periods, no need to correct anything in any of the models.
+
+The user only needs to enter one line of code. The one line of code tells the package about the data (where is it located, which feature is the target feature), and how to handle advanced functions (such as automatically removing highly correlated predictors at a value the user chooses, among other options).
+
+There are sample data sets included with the package to demonstrate all of the features that are available.
 
 ## Installation
 
 You can install the development version of Ensembles like so:
 
-``` r
-
+```{r How to install the Ensembles package from Github}
+devtools::install_github("InfiniteCuriosity/Ensembles")
 ```
 
-## Example
+### Examples: More details are available in the vignettes, please read those once you are finished with the ReadMe. You can see all vignettes on your system with the command: browseVignettes()
 
-This is a basic example which shows you how to solve a common problem:
+## Example: Numerical analysis
 
-```{r example}
+This is a basic example which shows you how to solve a common problem: Modeling the median value of a house in the Boston housing data set. The results here beat the 699 results submitted by college students, here: <https://www.kaggle.com/competitions/uou-g03784-2022-spring/leaderboard>
+
+The text for the numerical analysis is as follows (it is presented as text here, as this will take a couple of minutes to run if presented in actual code, try it yourself to see how it runs):
+
+numerical(data = MASS::Boston, colnum = 14, numresamples = 5, how_to_handle_strings = 0, do_you_have_new_data = "N", save_all_trained_models = "N", remove_ensemble_correlations_greater_than = 2.00, train_amount = 0.60, test_amount = 0.20, validation_amount = 0.20)
+
+## Example: Logistic analysis
+
+This example creates predictive models from the Diabetes data set included in the Ensembles package. Like the other functions in the Ensembles package (numerical, classification and forecasting), logistic uses R and Python, individual and ensemble models, regular and deep learning.
+
+The text for the logistic analysis is as follows (it is presented as text here, as this will take a couple of minutes to run if presented in actual code, try it yourself to see how it runs):
+
 library(Ensembles)
-## basic example code
-```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+logistic(data = diabetes, colnum = ncol(diabetes), numresamples = 5, save_all_trained_models = "N", how_to_handle_strings = 0, do_you_have_new_data = "N", remove_ensemble_correlations_greater_than = 2.00, train_amount = 0.60, test_amount = 0.20, validation_amount = 0.20)
 
-```{r cars}
-summary(cars)
-```
+## Example: Classification analysis
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+This example models the location of Carseats from the Carseats dataset in the ISLR package. There are three options for the location: Good, Bad, and Medium. The classification analysis automatically builds all the models, presents all the solution matrices, summary tables, and much more.
 
-You can also embed plots, for example:
+Similar to logistic analysis, the user does not need to set anything up, other than making sure the target column is a factor. It does not matter how many levels the factor has, the function will automatically make the accurate solution matrices, tables, and all other results.
 
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
+The text for the logistic analysis is as follows (it is presented as text here, as this will take a couple of minutes to run if presented in actual code, try it yourself to see how it runs):
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+library(Ensembles)
+
+classification(data = ISLR::Carseats, colnum = 7, numresamples = 5, do_you_have_new_data = "N", how_to_handle_strings = 1, save_all_trained_models = "N", train_amount = 0.60, test_amount = 0.20, validation_amount = 0.20)
+
+## Example: Forecasting analysis
