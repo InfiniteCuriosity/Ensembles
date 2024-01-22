@@ -333,4 +333,4 @@ Last, it's extremely easy to save all the trained models. Simply chose "Y" to th
 
 The numeric function within the Ensembles package allows you do to analysis of numeric data. It automatically makes 40 models, randomizes the rows, uses R and Python, and presents comprehensive results for you to use. The advanced features also allow you to make predictions on unseen data, save all trained models, set the correlation for the ensemble to any value you wish, and convert strings to numbers so the function will run.
 
-Best wishes with the function,
+Best wishes with the package!

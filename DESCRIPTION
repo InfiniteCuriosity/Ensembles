@@ -1,6 +1,6 @@
 Package: Ensembles
 Type: Package
-Title: Automates The Entire Data Science Process for Numerical, Classification, Logistic and Time Series Data, Using R and Pyton, Individual and Ensemble Models, Regular Learning and Deep Learning, All In One Package
+Title: Automates The Data Science Process for Numerical, Classification, Logistic and Time Series Data
 Version: 0.1.0
 Author: Russ Conte
 Maintainer: Russ Conte <russconte@mac.com>
