@@ -12,6 +12,7 @@ numerical(
   do_you_have_new_data = c("Y", "N"),
   save_all_trained_models = c("Y", "N"),
   remove_ensemble_correlations_greater_than,
+  use_parallel = c("Y", "N"),
   train_amount,
   test_amount,
   validation_amount
@@ -31,6 +32,8 @@ numerical(
 \item{save_all_trained_models}{"Y" or "N". If "Y", then places all the trained models in the Environment}
 
 \item{remove_ensemble_correlations_greater_than}{Enter a number to remove correlations in the ensembles}
+
+\item{use_parallel}{"Y" or "N" for parallel processing}
 
 \item{train_amount}{set the amount for the training data}
 

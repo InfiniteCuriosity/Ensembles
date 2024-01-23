@@ -7,6 +7,7 @@
 #' @param do_you_have_new_data "Y" or "N". If "Y", then you will be asked for the new data
 #' @param save_all_trained_models "Y" or "N". If "Y", then places all the trained models in the Environment
 #' @param remove_ensemble_correlations_greater_than Enter a number to remove correlations in the ensembles
+#' @param use_parallel "Y" or "N" for parallel processing
 #' @param train_amount set the amount for the training data
 #' @param test_amount set the amount for the testing data
 #' @param validation_amount Set the amount for the validation data
@@ -20,6 +21,7 @@
 #' @importFrom broom tidy
 #' @importFrom corrplot corrplot
 #' @importFrom Cubist cubist
+#' @importFrom doParallel doParallel registerDoParallel
 #' @importFrom dplyr all_of arrange relocate rename last_col n_distinct filter %>% mutate_if
 #' @importFrom e1071 tune.randomforest, tune.rpart, tune.svm tune.gknn naiveBayes
 #' @importFrom gam gam gam.s s
@@ -33,6 +35,7 @@
 #' @importFrom MASS lqs rlm
 #' @importFrom Metrics rmse
 #' @importFrom neuralnet neuralnet
+#' @importFrom parallel parallel makeCluster
 #' @importFrom pls pls pcr
 #' @importFrom purrr keep map_dbl
 #' @importFrom randomForest randomForest
@@ -47,8 +50,16 @@
 #' @importFrom xgboost xgb.DMatrix xgb.train
 
 numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0 ('none'), 1 ('factor levels')), do_you_have_new_data = c("Y", "N"),
-                      save_all_trained_models = c("Y", "N"), remove_ensemble_correlations_greater_than,
+                      save_all_trained_models = c("Y", "N"), remove_ensemble_correlations_greater_than, use_parallel = c("Y", "N"),
                       train_amount, test_amount, validation_amount){
+
+use_parallel <- 0
+no_cores <- 0
+
+if(use_parallel == "Y"){
+  cl <- parallel::makeCluster(no_cores, type="FORK")
+  doParallel::registerDoParallel(cl)
+}
 
 y <- 0
 colnames(data)[colnum] <- 'y'
