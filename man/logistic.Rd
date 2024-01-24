@@ -12,6 +12,7 @@ logistic(
   how_to_handle_strings = c("0", "1"),
   do_you_have_new_data = c("Y", "N"),
   remove_ensemble_correlations_greater_than,
+  use_parallel = c("Y", "N"),
   train_amount,
   test_amount,
   validation_amount
@@ -31,6 +32,8 @@ logistic(
 \item{do_you_have_new_data}{"Y" or "N". If "Y", then you will be asked for the new data}
 
 \item{remove_ensemble_correlations_greater_than}{Enter a number to remove correlations in the ensembles}
+
+\item{use_parallel}{"Y" or "N" for parallel processing}
 
 \item{train_amount}{set the amount for the training data}
 

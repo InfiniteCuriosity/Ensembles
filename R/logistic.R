@@ -7,6 +7,7 @@
 #' @param how_to_handle_strings 0: No strings, 1: Factor values
 #' @param do_you_have_new_data "Y" or "N". If "Y", then you will be asked for the new data
 #' @param remove_ensemble_correlations_greater_than Enter a number to remove correlations in the ensembles
+#' @param use_parallel "Y" or "N" for parallel processing
 #' @param train_amount set the amount for the training data
 #' @param test_amount set the amount for the testing data
 #' @param validation_amount Set the amount for the validation data
@@ -30,6 +31,7 @@
 #' @importFrom MachineShop fit
 #' @importFrom MASS lda qda
 #' @importFrom mda mda fda
+#' @importFrom parallel makeCluster
 #' @importFrom pls pcr
 #' @importFrom pROC roc ggroc
 #' @importFrom purrr keep
@@ -42,7 +44,16 @@
 #' @importFrom xgboost xgb.DMatrix xgb.train
 
 logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y", "N"), how_to_handle_strings = c("0", "1"),
-                     do_you_have_new_data = c("Y", "N"), remove_ensemble_correlations_greater_than, train_amount, test_amount, validation_amount){
+                     do_you_have_new_data = c("Y", "N"), remove_ensemble_correlations_greater_than, use_parallel = c("Y", "N"),
+                     train_amount, test_amount, validation_amount){
+
+use_parallel <- 0
+no_cores <- 0
+
+if(use_parallel == "Y"){
+  cl <- parallel::makeCluster(no_cores, type="FORK")
+  doParallel::registerDoParallel(cl)
+}
 
 colnames(data)[colnum] <- 'y'
 

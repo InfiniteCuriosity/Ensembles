@@ -6,6 +6,7 @@
 #' @param how_to_handle_strings Converts strings to factor levels
 #' @param do_you_have_new_data asks if the user has new data to be analyzed using the trained models that were just developed
 #' @param save_all_trained_models Gives the user the option to save all trained models in the Environment
+#' @param use_parallel "Y" or "N" for parallel processing
 #' @param train_amount set the amout for the training data
 #' @param test_amount set the amount for the testing data
 #' @param validation_amount Set the amount for the validation data
@@ -26,6 +27,7 @@
 #' @importFrom MachineShop fit
 #' @importFrom MASS lda
 #' @importFrom mda mda fda
+#' @importFrom parallel makeCluster
 #' @importFrom purrr keep
 #' @importFrom randomForest randomForest
 #' @importFrom reactable reactable
@@ -35,7 +37,16 @@
 #' @importFrom xgboost xgb.DMatrix xgb.train
 
 
-classification <- function(data, colnum, numresamples, do_you_have_new_data=c("Y", "N"), how_to_handle_strings = c(0 ('No strings'), 1 ('Strings as factors')), save_all_trained_models=c("Y", "N"), train_amount, test_amount, validation_amount){
+classification <- function(data, colnum, numresamples, do_you_have_new_data=c("Y", "N"), how_to_handle_strings = c(0 ('No strings'), 1 ('Strings as factors')), save_all_trained_models=c("Y", "N"),
+                           use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount){
+
+use_parallel <- 0
+no_cores <- 0
+
+if(use_parallel == "Y"){
+  cl <- parallel::makeCluster(no_cores, type="FORK")
+  doParallel::registerDoParallel(cl)
+}
 
   y <- 0
   colnames(data)[colnum] <- 'y'

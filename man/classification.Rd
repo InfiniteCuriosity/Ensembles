@@ -11,6 +11,7 @@ classification(
   do_you_have_new_data = c("Y", "N"),
   how_to_handle_strings = c(0("No strings"), 1("Strings as factors")),
   save_all_trained_models = c("Y", "N"),
+  use_parallel = c("Y", "N"),
   train_amount,
   test_amount,
   validation_amount
@@ -28,6 +29,8 @@ classification(
 \item{how_to_handle_strings}{Converts strings to factor levels}
 
 \item{save_all_trained_models}{Gives the user the option to save all trained models in the Environment}
+
+\item{use_parallel}{"Y" or "N" for parallel processing}
 
 \item{train_amount}{set the amout for the training data}
 
