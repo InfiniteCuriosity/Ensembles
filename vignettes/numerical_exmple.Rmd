@@ -16,9 +16,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Example 1: The fully automated solution in the Ensembles package beat all 699 entries from college students by more than 90%. Let's test that claim (spoiler alert: it's true), and show how you can use the same processes for any numerical data.
+# Example 1: The fully automated solution in the Ensembles package beats all 699 entries from college students by more than 90%. Let's test that claim (spoiler alert: it's true), and show how you can use the same processes for any numerical data.
 
-Welcome to the numerical example of the Ensembles package. This vignette will walk you through each of the steps and features of the numerical function, allowing you to beat the best score in a Kaggle contest by 699 college students. The student results were the Spring term project for 49 teams with 699 entries. This solution using the Ensembles package will beat all submission, and best their best solution by more than 90% and only require one line of code. The student results will be our baseline against which we will compare our results.
+Welcome to the numerical example of the Ensembles package. This vignette will walk you through each of the steps and features of the numerical function, allowing you to beat the best score in a Kaggle contest by 699 college students. The student results were the Spring term project for 49 teams with 699 entries. This solution using the Ensembles package will beat all submission, best their best solution by more than 90% and only require one line of code. The student results will be our baseline against which we will compare our results.
 
 ### Background on the Boston housing data set
 
