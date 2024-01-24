@@ -3,6 +3,7 @@
 #' @param time_series_data a time series
 #' @param number_of_intervals_to_forecast the number of intervals, such as months or weeks, that are going to be forecast
 #' @param time_interval user states whether the time interval is quarterly, monthly or weekly.
+#' @param use_parallel "Y" or "N" for parallel processing
 #'
 #' @returns A series of summary reports and visualizations to fully describe the time series: Forecast accuracy, forecast numbers, forecast plot, innovation residuals,
 #' @returns best autocorrelation function (ACF), plot of best histogram of residuals, plot of best actual vs predicted, plot of best actual vs trend
@@ -17,6 +18,7 @@
 #' @importFrom ggplot2 aes facet_grid geom_line geom_hline geom_abline geom_point ggplot ggtitle guides labs scale_x_continuous scale_y_continuous theme xlab ylab
 #' @importFrom gt gt tab_header fmt_number fmt_percent
 #' @importFrom magrittr %>%
+#' @importFrom parallel makeCluster
 #' @importFrom readr read_csv
 #' @importFrom stats stl AIC BIC lag
 #' @importFrom tibble tibble as_tibble
@@ -24,9 +26,17 @@
 #' @importFrom tsibble tsibble
 #' @importFrom utils tail head
 
-forecasting <- function(time_series_data, number_of_intervals_to_forecast, time_interval = c("Q", "M", "W")){
+forecasting <- function(time_series_data, number_of_intervals_to_forecast, use_parallel = c("Y", "N"), time_interval = c("Q", "M", "W")){
 
-  time_series_data <- read.csv(time_series_data)
+use_parallel <- 0
+no_cores <- 0
+
+if(use_parallel == "Y"){
+  cl <- parallel::makeCluster(no_cores, type="FORK")
+  doParallel::registerDoParallel(cl)
+}
+
+  time_series_data <- time_series_data
 
   Label <- 0
   Value <- 0
@@ -70,6 +80,7 @@ forecasting <- function(time_series_data, number_of_intervals_to_forecast, time_
   NeuralNet3 <- 0
   NeuralNet4 <- 0
   VAR1 <- 0
+  vars <- 0
   Mean <- 0
   Naive <- 0
   SNaive <- 0
@@ -231,7 +242,7 @@ forecasting <- function(time_series_data, number_of_intervals_to_forecast, time_
       Fourier4 = ARIMA(log(Value) ~ fourier(K = 4) + PDQ(0,0,0)),
       Fourier5 = ARIMA(log(Value) ~ fourier(K = 5) + PDQ(0,0,0)),
       Fourier6 = ARIMA(log(Value) ~ fourier(K = 6) + PDQ(0,0,0))
-    )
+      )
 
   Time_Series_AICc_fit <- Time_Series_AICc %>%
     fabletools::glance(Time_Series_AIC_fit) %>%
