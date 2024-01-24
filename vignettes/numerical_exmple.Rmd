@@ -59,8 +59,6 @@ Now we'll do our one line of code to have the Ensembles package complete the ana
 
 Let's look at what 'data', 'colnum', and 'numresamples' do.
 
-![One line of code. I added a couple of line breaks to make it easier to read, but R looks at this as one line of code.](images/One_line_of_code.jpg){width="752"}
-
 The 'data' can either be a a data set from an R package, or a link to a csv file. The csv file can be on your system, or online. In this example we are using MASS::Boston as our data.
 
 'colnum' is the column number. In this case we are looking at column 14, the median value of the house. This is the same as the column number by the college students, and virtually everyone else who works on the Boston housing data set.
@@ -116,21 +114,13 @@ We have used these values in this example.
 
 ### Automatically building the indexed ensembles from the holdout (testing and validation) predictions
 
-Next the function is going to build an ensemble of the predictions of the *holdout data* from the models. The ensemble is indexed so that the y values in the ensemble exactly match the corresponding row in the data. A picture makes this much easier to understand.
-
-![Indexed ensemble](images/Head_of_ensemble.png){width="800"}
+Next the function is going to build an ensemble of the predictions of the *holdout data* from the models. The ensemble is indexed so that the y values in the ensemble exactly match the corresponding row in the data.
 
 Note the far left column. That is not row numbers, it is row names. As this image shows, the rows have been randomized.
 
 ### Automatically indexing the ensemble, even when the rows are repeatedly randomized
 
 The final column in the ensemble, y_ensemble, exactly matches the corresponding value in the original data for that specific row. This is the actual value. In this case it is the corresponding medv value in the Boston Housing data set. Let us test that claim. The row name is the far left number, the medv value is y_ensemble. Here is the test:
-
-```{r testing if the y_ensemble values match the corresponding values in Boston Housing}
-MASS::Boston[c(456, 134, 88, 300, 262, 421), 14]
-```
-
-The result is a perfect match for the y_ensemble value in the ensemble: 14.1, 18.4, 22.2, 29.0, 43.1, 16.7.
 
 ### Automatically weighting the ensemble
 
@@ -184,37 +174,37 @@ The numerical function automatically reports all of these results to the user:
 
 Automatic results reported in the Console:
 
-1.  Data dictionary of the original data: ![Data dictionary](images/Data_dictionary.jpg){width="750"}
-2.  Correlation table of the original data (in this case Boston Housing): ![](images/Correlation_plot_of_numerical_data.jpg){width="750"}
-3.  Data summary (minimum values, means, etc.) of the original data:![Data summary](images/Data_summary.png){width="750"}
-4.  Head of the weighted and indexed ensemble: ![Head of weighted and indexed ensemble](images/Head_of_ensemble.jpg){width="750"}
-5.  Correlation table of the ensemble. Note that we are using very strongly correlated predictors in this example. Many of the correlations are above 0.90. If you look at the final column, y_ensemble, it will be seen that many of the several have correlations above 0.95. That will be addressed in the next example. For our present example, the head of the correlation table is: ![](images/Ensemble_correlation.png){width="750"}
+1.  Data dictionary of the original data
+2.  Correlation table of the original data (in this case Boston Housing):
+3.  Data summary (minimum values, means, etc.) of the original data:
+4.  Head of the weighted and indexed ensemble:
+5.  Correlation table of the ensemble. Note that we are using very strongly correlated predictors in this example. Many of the correlations are above 0.90. If you look at the final column, y_ensemble, it will be seen that many of the several have correlations above 0.95. That will be addressed in the next example.
 
-Automatic results reported in Plots:
+#### Automatic results reported in Plots:
 
-1.  Pairwise scatter plots and histograms of the numerical data![Pairwise scatter plots and histograms](images/Pairwise_scatterplots_and_histograms.jpg){width="750"}
+1.  Pairwise scatter plots and histograms of the numerical data
 
-2.  Correlation plot as numbers in color. ![Correlation plot of the original (Boston Housing) data](images/Correlation_plot_of_numerical_data-05.jpg){width="750"}
+2.  Correlation plot as numbers in color.
 
-3.  Correlation plot as circles in color![Correlation plot as circles in color](images/Correlation_plot_2_of_numerical_data.jpg){width="750"}
+3.  Correlation plot as circles in color
 
-4.  Best model: Results of Predicted vs Actual, Residuals vs Actual, Histogram of Residuals, all in one image![Best model graphical summary](images/Best_model_graphical_summary.jpg){width="750"}
+4.  Best model: Results of Predicted vs Actual, Residuals vs Actual, Histogram of Residuals, all in one image
 
-5.  Best model: Actual vs predicted![Best model actual vs predicted](images/Best_model_predicted_vs_actual.jpg){width="750"}
+5.  Best model: Actual vs predicted
 
-6.  Best model: Actual vs residuals![Best model residuals](images/best_model_residuals.jpg){width="750"}
+6.  Best model: Actual vs residuals
 
-7.  Best model: Histogram of residuals![Best model histogram of residuals](images/best_model_histogram_of_residuals.jpg){width="750"}
+7.  Best model: Histogram of residuals
 
-8.  40 models, accuracy for each model, and each sample![Accuracy plot](images/accuracy_plot.jpg){width="750"}
+8.  40 models, accuracy for each model, and each sample
 
-9.  40 models, accuracy for each model, also shows train, test and validation results![Best model with train, test and validation](images/Best_model_with_train_test_validation.jpg){width="750"}
+9.  40 models, accuracy for each model, also shows train, test and validation results
 
-10. Histogram of each numeric column.![Histogram of the numeric data](images/numerical_histogram.jpg){width="750"}
+10. Histogram of each numeric column.
 
-11. Boxplot of each numeric column![Numerical boxplots](images/numerical_boxplots.jpg){width="750"}
+11. Boxplot of each numeric column
 
-12. Summary report, sorted by root mean squared error. Note that the lowest root mean squared error in our example is 0.1281.![Numerical results, sorted by root mean squared error](images/numerical_results.jpg){width="750"}
+12. Summary report, sorted by root mean squared error. Note that the lowest root mean squared error in our example is 0.1281.
 
 ### Did the automated results using the Ensembles package beat the best results by the college students in their 699 Kaggle submissions by more than 90%? Let's test that claim:
 
@@ -222,9 +212,7 @@ The college student scores are here: <https://www.kaggle.com/competitions/uou-g0
 
 The lowest root mean squared error for the college students (out of 699 entries) is 2.41243.
 
-The lowest score for the fully automated solution using the Ensembles package is 0.1281. This means the automated solution using the Ensembles package is a 94.69% decrease compared to the college students. According to the website <https://www.calculatorsoup.com/calculators/algebra/percent-change-calculator.php>\
-\
-![Percentage change](images/Percentage_change.png)
+The lowest score for the fully automated solution using the Ensembles package is 0.1281. This means the automated solution using the Ensembles package is a 94.69% decrease compared to the college students. According to the website <https://www.calculatorsoup.com/calculators/algebra/percent-change-calculator.php>
 
 Test passed.
 
@@ -234,38 +222,7 @@ Test passed.
 
 Many data sets have data that includes both numerical and categorical values. The only requirement from the Ensembles function is that the categorical values are factors. Once that is done, everything else will run as the example above (Boston Housing).
 
-Let's look at a quick example. In the ISLR package, there is a data set called Carseats. It has both numerical and categorical values. Let's look at the head of the data set:
-
-```{r Head of carseats data set}
-library(ISLR)
-head(Carseats, n = 10)
-```
-
-The three categorical columns are ShelveLoc (the location of the item on the shelf: Good, Medium or Bad), Urban (Yes or No) and US (Yes or No).
-
-Let's see if the categorical columns are factors or not:
-
-```{r Test if the categorical columns in Carseats are factors}
-str(Carseats)
-```
-
 When we run the numerical function, we will choose to convert the strings to numbers, so the numerical function will run without any incident.
-
-You can also set the data set up ahead of time so that all columns are numerical.
-
-Here is how the function is set up to measure Sales. Note that how_to_handle_strings is now set to 1, which converts the strings to numbers that the function can use:\
-\
-![How to handle strings](images/how_to_handle_strings.jpg)
-
-Once that is done, the function completes all the same steps as in the Boston Housing example. In this case the best holdout RMSE is 0.0475. Given that the mean of the sales price is 7.4963, the error is 0.006349799. Since the sale prices are in dollars, this is a little over 6/10 of a penny:
-
-```{r Calculating the error for the Sales value in the Carseats data set}
-0.0476/7.4963
-```
-
-Here is the top five results. Four of the top five results are ensembles, including the top two results:
-
-![Top five results for modeling the Sales price in the Carseats data set](images/top_five_results.jpg)
 
 #### 2b. How to reduce highly correlated predictors in the ensembles
 
@@ -273,21 +230,13 @@ Continuing with the Carseats data set, the numerical function gives a report of 
 
 What are the correlation values in the current analysis? Here is an image of part of the correlation table, and it is easy to see many of these values are very high, for example, above 0.95:
 
-![Numerical ensemble highly correlated predictors (partial list)](images/Numberical_ensemble_highly_correlated_predictors-02.jpg)
-
 This is an extremely easy problem to solve using the Ensembles package. Simply chose the maximum value for the correlation, enter it into the values, and the function does the rest.
 
-For example, let's say we wanted only correlation values below 0.95. The function would be run like this:\
-\
-![Remove ensemble correlations below 0.95](images/Remove_ensemble_correlations_below_0.95.jpg)
+For example, let's say we wanted only correlation values below 0.95. The function would be run like this:
 
 The resulting ensemble does not have any predictors above 0.95. Let's test that claim:\
 \
-![No ensemble correlation above 0.95](images/Numerical_no_correlation_above_95.jpg)
-
-This results in a slight decrease in holdout RMSE, but not by a lot:\
-\
-![Table: No correlation in the ensembles above 0.95](images/table_no_correlation_above_095.jpg)
+This results in a slight decrease in holdout RMSE, but not by a lot:
 
 #### 2c. What if you (or a colleague) have new data?
 
@@ -295,23 +244,15 @@ This is the acid test of data science: How well does the solution work on totall
 
 We'll use a modified version of the Boston housing data set for our example. The Ensembles package contains a version of the Boston housing data set with the first five rows removed. We will run the analysis on this data set, and then test the 40 models on the first five rows.
 
-Let's start by doing the analysis on the Boston housing data set in the Ensembles package. Note that we are going to make "Y" when it asks if we have new [data:\\](data:\){.uri}\
-![Do you have new data?](images/do_you_have_new_data.jpg)
+Let's start by doing the analysis on the Boston housing data set in the Ensembles package. Note that we are going to make "Y" when it asks if we have new
 
-When this code is run, the first step the function asks is the location of the new data. It can be on your computer or online. In this example, I'll use the NewBoston data that is part of the Ensembles package. Here's what the data looks like:
-
-![NewBoston data in the Ensembles package](images/NewBoston.jpg)\
+When this code is run, the first step the function asks is the location of the new data. It can be on your computer or online. In this example, I'll use the NewBoston data that is part of the Ensembles package. Here's what the data looks like:\
 \
-When the function is run, the Console asks for the location of the new [data:\\](data:\){.uri} ![New Boston on my computer, using it for new data](images/NewBoston_location-01.jpg)
+When the function is run, the Console asks for the location of the new
 
 The most accurate result (lowest RMSE) this time is Ensemble BayesGLM. Here's the evidence:
 
-![Analysis of Boston minus the first five rows](images/Analysis_of_new_boston-01.jpg)
-
 Let's test how well the model performed on the totally new data, compared to the mean error by the college students noted above. We'll compare the top row (true values) and the bottom row in this image (predictions from the Ensemble BayesGLM model):\
-\
-![Ensemble BayesGLM predictions on NewBoston data](images/Ensemble_BayesGLM_predictions.jpg)\
-\
 
 |                     | House 1 | House 2 | House 3 | House 4 | House 5 |
 |---------------------|---------|---------|---------|---------|---------|
@@ -326,8 +267,6 @@ Test passed.
 #### 2d. Saving all trained models
 
 Last, it's extremely easy to save all the trained models. Simply chose "Y" to the question save_all_trained_models. The function saves all the trained models in the user's environment, which can be saved or shared with others. Here is the top of what that looks like:
-
-![Top of all trained models](images/all_trained_models.jpg)
 
 ### Summary:
 
