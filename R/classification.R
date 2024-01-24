@@ -17,17 +17,15 @@
 #' @importFrom class knn
 #' @importFrom corrplot corrplot
 #' @importFrom dplyr across count mutate relocate select
-#' @importFrom e1071 csv svm
+#' @importFrom e1071 svm
 #' @importFrom ggplot2 geom_boxplot geom_histogram ggplot facet_wrap labs theme_bw labs aes
 #' @importFrom gt gt
-#' @importFrom gtExtras gtExtras
 #' @importFrom ipred bagging
 #' @importFrom kernlab gausspr lssvm
 #' @importFrom klaR rda
-#' @importFrom MachineShop fit pls
+#' @importFrom MachineShop fit
 #' @importFrom MASS lda
-#' @importFrom mda mda fda qda
-#' @importFrom pls pcr, pls
+#' @importFrom mda mda fda
 #' @importFrom purrr keep
 #' @importFrom randomForest randomForest
 #' @importFrom reactable reactable

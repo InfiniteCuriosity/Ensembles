@@ -13,17 +13,16 @@
 #' @importFrom fable ARIMA ETS MEAN NAIVE NNETAR RW SNAIVE TSLM
 #' @importFrom fabletools accuracy as_tsibble augment autoplot components features report
 #' @importFrom fable.prophet prophet
-#' @importFrom feasts gt_tsresiduals STL
-#' @importFrom ggplot2 aes facet_grid geom_line geom_hline gg_abline geom_point ggplot ggtitle guides labs scale_x_continuous scale_y_continuous theme xlab ylab
+#' @importFrom feasts gg_tsresiduals STL
+#' @importFrom ggplot2 aes facet_grid geom_line geom_hline geom_abline geom_point ggplot ggtitle guides labs scale_x_continuous scale_y_continuous theme xlab ylab
 #' @importFrom gt gt tab_header fmt_number fmt_percent
-#' @importFrom gt gtExtras gt_theme_guardian gt_highlight_rows
 #' @importFrom magrittr %>%
 #' @importFrom readr read_csv
 #' @importFrom stats stl AIC BIC lag
 #' @importFrom tibble tibble as_tibble
 #' @importFrom tidyr pivot_longer drop_na
 #' @importFrom tsibble tsibble
-#' @importFrom utils read.csv, tail head
+#' @importFrom utils tail head
 
 forecasting <- function(time_series_data, number_of_intervals_to_forecast, time_interval = c("Q", "M", "W")){
 

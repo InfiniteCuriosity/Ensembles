@@ -16,14 +16,12 @@
 #' @export numerical
 #'
 #' @importFrom arm bayesglm
-#' @importFrom blsR blsR data_as_tidy_table
 #' @importFrom brnn brnn
 #' @importFrom broom tidy
 #' @importFrom corrplot corrplot
 #' @importFrom Cubist cubist
-#' @importFrom doParallel doParallel registerDoParallel
 #' @importFrom dplyr all_of arrange relocate rename last_col n_distinct filter %>% mutate_if
-#' @importFrom e1071 tune.randomforest, tune.rpart, tune.svm tune.gknn naiveBayes
+#' @importFrom e1071 tune.svm tune.gknn naiveBayes
 #' @importFrom gam gam gam.s s
 #' @importFrom gbm gbm
 #' @importFrom glmnet glmnet
@@ -35,8 +33,8 @@
 #' @importFrom MASS lqs rlm
 #' @importFrom Metrics rmse
 #' @importFrom neuralnet neuralnet
-#' @importFrom parallel parallel makeCluster
-#' @importFrom pls pls pcr
+#' @importFrom parallel makeCluster
+#' @importFrom pls pcr
 #' @importFrom purrr keep map_dbl
 #' @importFrom randomForest randomForest
 #' @importFrom reactable reactable

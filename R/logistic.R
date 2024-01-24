@@ -14,7 +14,6 @@
 #' @return a real number
 #' @export logistic
 
-#' @importFrom adabag adabag
 #' @importFrom arm bayesglm
 #' @importFrom brnn brnn
 #' @importFrom C50 C5.0
@@ -26,20 +25,18 @@
 #' @importFrom gbm gbm
 #' @importFrom ggplot2 geom_boxplot geom_histogram ggplot facet_wrap labs theme_bw labs aes
 #' @importFrom gt gt
-#' @importFrom gtExtras gtExtras
 #' @importFrom ipred bagging
 #' @importFrom klaR rda
-#' @importFrom MachineShop fit pls
+#' @importFrom MachineShop fit
 #' @importFrom MASS lda qda
 #' @importFrom mda mda fda
-#' @importFrom pls pcr pls
+#' @importFrom pls pcr
 #' @importFrom pROC roc ggroc
 #' @importFrom purrr keep
 #' @importFrom randomForest randomForest
 #' @importFrom reactable reactable
 #' @importFrom reactablefmtr add_title
 #' @importFrom readr cols
-#' @importFrom robust robust
 #' @importFrom rpart rpart
 #' @importFrom tidyr gather pivot_longer
 #' @importFrom xgboost xgb.DMatrix xgb.train
