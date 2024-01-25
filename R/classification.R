@@ -37,24 +37,23 @@
 #' @importFrom xgboost xgb.DMatrix xgb.train
 
 
-classification <- function(data, colnum, numresamples, do_you_have_new_data=c("Y", "N"), how_to_handle_strings = c(0 ('No strings'), 1 ('Strings as factors')), save_all_trained_models=c("Y", "N"),
-                           use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount){
+classification <- function(data, colnum, numresamples, do_you_have_new_data = c("Y", "N"), how_to_handle_strings = c(0("No strings"), 1("Strings as factors")), save_all_trained_models = c("Y", "N"),
+                           use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount) {
+  use_parallel <- 0
+  no_cores <- 0
 
-use_parallel <- 0
-no_cores <- 0
-
-if(use_parallel == "Y"){
-  cl <- parallel::makeCluster(no_cores, type="FORK")
-  doParallel::registerDoParallel(cl)
-}
+  if (use_parallel == "Y") {
+    cl <- parallel::makeCluster(no_cores, type = "FORK")
+    doParallel::registerDoParallel(cl)
+  }
 
   y <- 0
-  colnames(data)[colnum] <- 'y'
+  colnames(data)[colnum] <- "y"
 
   df <- data %>% dplyr::relocate(y, .after = last_col()) # Moves the target column to the last column on the right
   df <- df[sample(nrow(df)), ]
 
-  if(how_to_handle_strings == 1){
+  if (how_to_handle_strings == 1) {
     df <- dplyr::mutate_if(df, is.character, as.factor)
     df <- dplyr::mutate_if(df, is.factor, as.numeric)
   }
@@ -567,17 +566,20 @@ if(use_parallel == "Y"){
 
   #### Pariwise scatter plot ####
 
-  panel.hist <- function(x, ...)
-  {
+  panel.hist <- function(x, ...) {
     usr <- par("usr")
-    par(usr = c(usr[1:2], 0, 1.5) )
+    par(usr = c(usr[1:2], 0, 1.5))
     h <- hist(x, plot = FALSE)
-    breaks <- h$breaks; nB <- length(breaks)
-    y <- h$counts; y <- y/max(y)
+    breaks <- h$breaks
+    nB <- length(breaks)
+    y <- h$counts
+    y <- y / max(y)
     rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
   }
-  display_pairs <- pairs(df, panel = panel.smooth, main = "Pairwise scatter plots and histograms of the numerical data",
-                         lower.panel = panel.smooth, diag.panel = panel.hist)
+  display_pairs <- pairs(df,
+    panel = panel.smooth, main = "Pairwise scatter plots and histograms of the numerical data",
+    lower.panel = panel.smooth, diag.panel = panel.hist
+  )
 
   #### Boxplots of the numeric data ####
   boxplots <- df1 %>%
@@ -598,11 +600,11 @@ if(use_parallel == "Y"){
   for (i in 1:numresamples) {
     df <- df[sample(nrow(df)), ]
 
-    index <- sample(c(1:3), nrow(df), replace=TRUE, prob=c(train_amount, test_amount, validation_amount))
+    index <- sample(c(1:3), nrow(df), replace = TRUE, prob = c(train_amount, test_amount, validation_amount))
 
-    train  <- df[index == 1, ]
-    test   <- df[index == 2, ]
-    validation = df[index == 3,]
+    train <- df[index == 1, ]
+    test <- df[index == 2, ]
+    validation <- df[index == 3, ]
 
     train01 <- train
     test01 <- test
@@ -612,8 +614,8 @@ if(use_parallel == "Y"){
     y_test <- test$y
     y_validation <- validation$y
 
-    train  <- df[index == 1, ] %>% dplyr::select(-y)
-    test   <- df[index == 2, ] %>% dplyr::select(-y)
+    train <- df[index == 1, ] %>% dplyr::select(-y)
+    test <- df[index == 2, ] %>% dplyr::select(-y)
     validation <- df[index == 3, ] %>% dplyr::select(-y)
 
     #### 1. Adabag ####
@@ -660,9 +662,9 @@ if(use_parallel == "Y"){
 
     adabag_true_positive_rate[i] <- sum(diag(adabag_table)) / sum(adabag_table)
     adabag_true_positive_rate_mean <- mean(adabag_true_positive_rate[i])
-    adabag_true_negative_rate[i] <- 0.5*(sum(diag(adabag_table))) / sum(adabag_table)
+    adabag_true_negative_rate[i] <- 0.5 * (sum(diag(adabag_table))) / sum(adabag_table)
     adabag_true_negative_rate_mean <- mean(adabag_true_negative_rate[i])
-    adabag_false_negative_rate[i] <-  1 - adabag_true_positive_rate[i]
+    adabag_false_negative_rate[i] <- 1 - adabag_true_positive_rate[i]
     adabag_false_negative_rate_mean <- mean(adabag_false_negative_rate)
     adabag_false_positive_rate[i] <- 1 - adabag_true_negative_rate[i]
     adabag_false_positive_rate_mean <- mean(adabag_false_positive_rate)
@@ -717,9 +719,9 @@ if(use_parallel == "Y"){
 
     adaboost_true_positive_rate[i] <- sum(diag(adaboost_table)) / sum(adaboost_table)
     adaboost_true_positive_rate_mean <- mean(adaboost_true_positive_rate[i])
-    adaboost_true_negative_rate[i] <- 0.5*(sum(diag(adaboost_table))) / sum(adaboost_table)
+    adaboost_true_negative_rate[i] <- 0.5 * (sum(diag(adaboost_table))) / sum(adaboost_table)
     adaboost_true_negative_rate_mean <- mean(adaboost_true_negative_rate)
-    adaboost_false_negative_rate[i] <-  1 - adaboost_true_positive_rate[i]
+    adaboost_false_negative_rate[i] <- 1 - adaboost_true_positive_rate[i]
     adaboost_false_negative_rate_mean <- mean(adaboost_false_negative_rate)
     adaboost_false_positive_rate[i] <- 1 - adaboost_true_negative_rate[i]
     adaboost_false_positive_rate_mean <- mean(adaboost_false_positive_rate)
@@ -774,9 +776,9 @@ if(use_parallel == "Y"){
 
     bagging_true_positive_rate[i] <- sum(diag(bagging_table)) / sum(bagging_table)
     bagging_true_positive_rate_mean <- mean(bagging_true_positive_rate[i])
-    bagging_true_negative_rate[i] <- 0.5*(sum(diag(bagging_table))) / sum(bagging_table)
+    bagging_true_negative_rate[i] <- 0.5 * (sum(diag(bagging_table))) / sum(bagging_table)
     bagging_true_negative_rate_mean <- mean(bagging_true_negative_rate)
-    bagging_false_negative_rate[i] <-  1 - bagging_true_positive_rate[i]
+    bagging_false_negative_rate[i] <- 1 - bagging_true_positive_rate[i]
     bagging_false_negative_rate_mean <- mean(bagging_false_negative_rate)
     bagging_false_positive_rate[i] <- 1 - bagging_true_negative_rate[i]
     bagging_false_positive_rate_mean <- mean(bagging_false_positive_rate)
@@ -831,9 +833,9 @@ if(use_parallel == "Y"){
 
     bag_rf_true_positive_rate[i] <- sum(diag(bag_rf_table)) / sum(bag_rf_table)
     bag_rf_true_positive_rate_mean <- mean(bag_rf_true_positive_rate[i])
-    bag_rf_true_negative_rate[i] <- 0.5*(sum(diag(bag_rf_table))) / sum(bag_rf_table)
+    bag_rf_true_negative_rate[i] <- 0.5 * (sum(diag(bag_rf_table))) / sum(bag_rf_table)
     bag_rf_true_negative_rate_mean <- mean(bag_rf_true_negative_rate)
-    bag_rf_false_negative_rate[i] <-  1 - bag_rf_true_positive_rate[i]
+    bag_rf_false_negative_rate[i] <- 1 - bag_rf_true_positive_rate[i]
     bag_rf_false_negative_rate_mean <- mean(bag_rf_false_negative_rate)
     bag_rf_false_positive_rate[i] <- 1 - bag_rf_true_negative_rate[i]
     bag_rf_false_positive_rate_mean <- mean(bag_rf_false_positive_rate)
@@ -885,9 +887,9 @@ if(use_parallel == "Y"){
 
     C50_true_positive_rate[i] <- sum(diag(C50_table)) / sum(C50_table)
     C50_true_positive_rate_mean <- mean(C50_true_positive_rate[i])
-    C50_true_negative_rate[i] <- 0.5*(sum(diag(C50_table))) / sum(C50_table)
+    C50_true_negative_rate[i] <- 0.5 * (sum(diag(C50_table))) / sum(C50_table)
     C50_true_negative_rate_mean <- mean(C50_true_negative_rate)
-    C50_false_negative_rate[i] <-  1 - C50_true_positive_rate[i]
+    C50_false_negative_rate[i] <- 1 - C50_true_positive_rate[i]
     C50_false_negative_rate_mean <- mean(C50_false_negative_rate)
     C50_false_positive_rate[i] <- 1 - C50_true_negative_rate[i]
     C50_false_positive_rate_mean <- mean(C50_false_positive_rate)
@@ -940,9 +942,9 @@ if(use_parallel == "Y"){
 
     fda_true_positive_rate[i] <- sum(diag(fda_table)) / sum(fda_table)
     fda_true_positive_rate_mean <- mean(fda_true_positive_rate[i])
-    fda_true_negative_rate[i] <- 0.5*(sum(diag(fda_table))) / sum(fda_table)
+    fda_true_negative_rate[i] <- 0.5 * (sum(diag(fda_table))) / sum(fda_table)
     fda_true_negative_rate_mean <- mean(fda_true_negative_rate)
-    fda_false_negative_rate[i] <-  1 - fda_true_positive_rate[i]
+    fda_false_negative_rate[i] <- 1 - fda_true_positive_rate[i]
     fda_false_negative_rate_mean <- mean(fda_false_negative_rate)
     fda_false_positive_rate[i] <- 1 - fda_true_negative_rate[i]
     fda_false_positive_rate_mean <- mean(fda_false_positive_rate)
@@ -957,7 +959,7 @@ if(use_parallel == "Y"){
     #### Gaussian Process ####
     gausspr_start <- Sys.time()
 
-    gausspr_train_fit <-  kernlab::gausspr(as.factor(y_train) ~ ., data = as.data.frame(train))
+    gausspr_train_fit <- kernlab::gausspr(as.factor(y_train) ~ ., data = as.data.frame(train))
     gausspr_train_pred <- kernlab::predict(object = gausspr_train_fit, newdata = as.data.frame(train))
     gausspr_train_table <- table(gausspr_train_pred, y_train)
     gausspr_train_accuracy[i] <- sum(diag(gausspr_train_table)) / sum(gausspr_train_table)
@@ -999,9 +1001,9 @@ if(use_parallel == "Y"){
 
     gausspr_true_positive_rate[i] <- sum(diag(gausspr_table)) / sum(gausspr_table)
     gausspr_true_positive_rate_mean <- mean(gausspr_true_positive_rate[i])
-    gausspr_true_negative_rate[i] <- 0.5*(sum(diag(gausspr_table))) / sum(gausspr_table)
+    gausspr_true_negative_rate[i] <- 0.5 * (sum(diag(gausspr_table))) / sum(gausspr_table)
     gausspr_true_negative_rate_mean <- mean(gausspr_true_negative_rate)
-    gausspr_false_negative_rate[i] <-  1 - gausspr_true_positive_rate[i]
+    gausspr_false_negative_rate[i] <- 1 - gausspr_true_positive_rate[i]
     gausspr_false_negative_rate_mean <- mean(gausspr_false_negative_rate)
     gausspr_false_positive_rate[i] <- 1 - gausspr_true_negative_rate[i]
     gausspr_false_positive_rate_mean <- mean(gausspr_false_positive_rate)
@@ -1016,7 +1018,7 @@ if(use_parallel == "Y"){
     #### Least Squares Support Vector Machines (lssvm) ####
     lssvm_start <- Sys.time()
 
-    lssvm_train_fit <-  kernlab::lssvm(as.factor(y_train) ~ ., data = as.data.frame(train))
+    lssvm_train_fit <- kernlab::lssvm(as.factor(y_train) ~ ., data = as.data.frame(train))
     lssvm_train_pred <- kernlab::predict(object = lssvm_train_fit, newdata = as.data.frame(train))
     lssvm_train_table <- table(lssvm_train_pred, y_train)
     lssvm_train_accuracy[i] <- sum(diag(lssvm_train_table)) / sum(lssvm_train_table)
@@ -1058,9 +1060,9 @@ if(use_parallel == "Y"){
 
     lssvm_true_positive_rate[i] <- sum(diag(lssvm_table)) / sum(lssvm_table)
     lssvm_true_positive_rate_mean <- mean(lssvm_true_positive_rate[i])
-    lssvm_true_negative_rate[i] <- 0.5*(sum(diag(lssvm_table))) / sum(lssvm_table)
+    lssvm_true_negative_rate[i] <- 0.5 * (sum(diag(lssvm_table))) / sum(lssvm_table)
     lssvm_true_negative_rate_mean <- mean(lssvm_true_negative_rate)
-    lssvm_false_negative_rate[i] <-  1 - lssvm_true_positive_rate[i]
+    lssvm_false_negative_rate[i] <- 1 - lssvm_true_positive_rate[i]
     lssvm_false_negative_rate_mean <- mean(lssvm_false_negative_rate)
     lssvm_false_positive_rate[i] <- 1 - lssvm_true_negative_rate[i]
     lssvm_false_positive_rate_mean <- mean(lssvm_false_positive_rate)
@@ -1113,9 +1115,9 @@ if(use_parallel == "Y"){
 
     linear_true_positive_rate[i] <- sum(diag(linear_table)) / sum(linear_table)
     linear_true_positive_rate_mean <- mean(linear_true_positive_rate[i])
-    linear_true_negative_rate[i] <- 0.5*(sum(diag(linear_table))) / sum(linear_table)
+    linear_true_negative_rate[i] <- 0.5 * (sum(diag(linear_table))) / sum(linear_table)
     linear_true_negative_rate_mean <- mean(linear_true_negative_rate)
-    linear_false_negative_rate[i] <-  1 - linear_true_positive_rate[i]
+    linear_false_negative_rate[i] <- 1 - linear_true_positive_rate[i]
     linear_false_negative_rate_mean <- mean(linear_false_negative_rate)
     linear_false_positive_rate[i] <- 1 - linear_true_negative_rate[i]
     linear_false_positive_rate_mean <- mean(linear_false_positive_rate)
@@ -1167,9 +1169,9 @@ if(use_parallel == "Y"){
 
     mda_true_positive_rate[i] <- sum(diag(mda_table)) / sum(mda_table)
     mda_true_positive_rate_mean <- mean(mda_true_positive_rate[i])
-    mda_true_negative_rate[i] <- 0.5*(sum(diag(mda_table))) / sum(mda_table)
+    mda_true_negative_rate[i] <- 0.5 * (sum(diag(mda_table))) / sum(mda_table)
     mda_true_negative_rate_mean <- mean(mda_true_negative_rate)
-    mda_false_negative_rate[i] <-  1 - mda_true_positive_rate[i]
+    mda_false_negative_rate[i] <- 1 - mda_true_positive_rate[i]
     mda_false_negative_rate_mean <- mean(mda_false_negative_rate)
     mda_false_positive_rate[i] <- 1 - mda_true_negative_rate[i]
     mda_false_positive_rate_mean <- mean(mda_false_positive_rate)
@@ -1224,9 +1226,9 @@ if(use_parallel == "Y"){
 
     n_bayes_true_positive_rate[i] <- sum(diag(n_bayes_table)) / sum(n_bayes_table)
     n_bayes_true_positive_rate_mean <- mean(n_bayes_true_positive_rate[i])
-    n_bayes_true_negative_rate[i] <- 0.5*(sum(diag(n_bayes_table))) / sum(n_bayes_table)
+    n_bayes_true_negative_rate[i] <- 0.5 * (sum(diag(n_bayes_table))) / sum(n_bayes_table)
     n_bayes_true_negative_rate_mean <- mean(n_bayes_true_negative_rate)
-    n_bayes_false_negative_rate[i] <-  1 - n_bayes_true_positive_rate[i]
+    n_bayes_false_negative_rate[i] <- 1 - n_bayes_true_positive_rate[i]
     n_bayes_false_negative_rate_mean <- mean(n_bayes_false_negative_rate)
     n_bayes_false_positive_rate[i] <- 1 - n_bayes_true_negative_rate[i]
     n_bayes_false_positive_rate_mean <- mean(n_bayes_false_positive_rate)
@@ -1278,9 +1280,9 @@ if(use_parallel == "Y"){
 
     qda_true_positive_rate[i] <- sum(diag(qda_table)) / sum(qda_table)
     qda_true_positive_rate_mean <- mean(qda_true_positive_rate[i])
-    qda_true_negative_rate[i] <- 0.5*(sum(diag(qda_table))) / sum(qda_table)
+    qda_true_negative_rate[i] <- 0.5 * (sum(diag(qda_table))) / sum(qda_table)
     qda_true_negative_rate_mean <- mean(qda_true_negative_rate)
-    qda_false_negative_rate[i] <-  1 - qda_true_positive_rate[i]
+    qda_false_negative_rate[i] <- 1 - qda_true_positive_rate[i]
     qda_false_negative_rate_mean <- mean(qda_false_negative_rate)
     qda_false_positive_rate[i] <- 1 - qda_true_negative_rate[i]
     qda_false_positive_rate_mean <- mean(qda_false_positive_rate)
@@ -1335,9 +1337,9 @@ if(use_parallel == "Y"){
 
     pls_true_positive_rate[i] <- sum(diag(pls_table)) / sum(pls_table)
     pls_true_positive_rate_mean <- mean(pls_true_positive_rate[i])
-    pls_true_negative_rate[i] <- 0.5*(sum(diag(pls_table))) / sum(pls_table)
+    pls_true_negative_rate[i] <- 0.5 * (sum(diag(pls_table))) / sum(pls_table)
     pls_true_negative_rate_mean <- mean(pls_true_negative_rate)
-    pls_false_negative_rate[i] <-  1 - pls_true_positive_rate[i]
+    pls_false_negative_rate[i] <- 1 - pls_true_positive_rate[i]
     pls_false_negative_rate_mean <- mean(pls_false_negative_rate)
     pls_false_positive_rate[i] <- 1 - pls_true_negative_rate[i]
     pls_false_positive_rate_mean <- mean(pls_false_positive_rate)
@@ -1392,9 +1394,9 @@ if(use_parallel == "Y"){
 
     pda_true_positive_rate[i] <- sum(diag(pda_table)) / sum(pda_table)
     pda_true_positive_rate_mean <- mean(pda_true_positive_rate[i])
-    pda_true_negative_rate[i] <- 0.5*(sum(diag(pda_table))) / sum(pda_table)
+    pda_true_negative_rate[i] <- 0.5 * (sum(diag(pda_table))) / sum(pda_table)
     pda_true_negative_rate_mean <- mean(pda_true_negative_rate)
-    pda_false_negative_rate[i] <-  1 - pda_true_positive_rate[i]
+    pda_false_negative_rate[i] <- 1 - pda_true_positive_rate[i]
     pda_false_negative_rate_mean <- mean(pda_false_negative_rate)
     pda_false_positive_rate[i] <- 1 - pda_true_negative_rate[i]
     pda_false_positive_rate_mean <- mean(pda_false_positive_rate)
@@ -1449,9 +1451,9 @@ if(use_parallel == "Y"){
 
     rf_true_positive_rate[i] <- sum(diag(rf_table)) / sum(rf_table)
     rf_true_positive_rate_mean <- mean(rf_true_positive_rate[i])
-    rf_true_negative_rate[i] <- 0.5*(sum(diag(rf_table))) / sum(rf_table)
+    rf_true_negative_rate[i] <- 0.5 * (sum(diag(rf_table))) / sum(rf_table)
     rf_true_negative_rate_mean <- mean(rf_true_negative_rate)
-    rf_false_negative_rate[i] <-  1 - rf_true_positive_rate[i]
+    rf_false_negative_rate[i] <- 1 - rf_true_positive_rate[i]
     rf_false_negative_rate_mean <- mean(rf_false_negative_rate)
     rf_false_positive_rate[i] <- 1 - rf_true_negative_rate[i]
     rf_false_positive_rate_mean <- mean(rf_false_positive_rate)
@@ -1506,9 +1508,9 @@ if(use_parallel == "Y"){
 
     ranger_true_positive_rate[i] <- sum(diag(ranger_table)) / sum(ranger_table)
     ranger_true_positive_rate_mean <- mean(ranger_true_positive_rate[i])
-    ranger_true_negative_rate[i] <- 0.5*(sum(diag(ranger_table))) / sum(ranger_table)
+    ranger_true_negative_rate[i] <- 0.5 * (sum(diag(ranger_table))) / sum(ranger_table)
     ranger_true_negative_rate_mean <- mean(ranger_true_negative_rate)
-    ranger_false_negative_rate[i] <-  1 - ranger_true_positive_rate[i]
+    ranger_false_negative_rate[i] <- 1 - ranger_true_positive_rate[i]
     ranger_false_negative_rate_mean <- mean(ranger_false_negative_rate)
     ranger_false_positive_rate[i] <- 1 - ranger_true_negative_rate[i]
     ranger_false_positive_rate_mean <- mean(ranger_false_positive_rate)
@@ -1560,9 +1562,9 @@ if(use_parallel == "Y"){
 
     rda_true_positive_rate[i] <- sum(diag(rda_table)) / sum(rda_table)
     rda_true_positive_rate_mean <- mean(rda_true_positive_rate[i])
-    rda_true_negative_rate[i] <- 0.5*(sum(diag(rda_table))) / sum(rda_table)
+    rda_true_negative_rate[i] <- 0.5 * (sum(diag(rda_table))) / sum(rda_table)
     rda_true_negative_rate_mean <- mean(rda_true_negative_rate)
-    rda_false_negative_rate[i] <-  1 - rda_true_positive_rate[i]
+    rda_false_negative_rate[i] <- 1 - rda_true_positive_rate[i]
     rda_false_negative_rate_mean <- mean(rda_false_negative_rate)
     rda_false_positive_rate[i] <- 1 - rda_true_negative_rate[i]
     rda_false_positive_rate_mean <- mean(rda_false_positive_rate)
@@ -1617,9 +1619,9 @@ if(use_parallel == "Y"){
 
     rpart_true_positive_rate[i] <- sum(diag(rpart_table)) / sum(rpart_table)
     rpart_true_positive_rate_mean <- mean(rpart_true_positive_rate[i])
-    rpart_true_negative_rate[i] <- 0.5*(sum(diag(rpart_table))) / sum(rpart_table)
+    rpart_true_negative_rate[i] <- 0.5 * (sum(diag(rpart_table))) / sum(rpart_table)
     rpart_true_negative_rate_mean <- mean(rpart_true_negative_rate)
-    rpart_false_negative_rate[i] <-  1 - rpart_true_positive_rate[i]
+    rpart_false_negative_rate[i] <- 1 - rpart_true_positive_rate[i]
     rpart_false_negative_rate_mean <- mean(rpart_false_negative_rate)
     rpart_false_positive_rate[i] <- 1 - rpart_true_negative_rate[i]
     rpart_false_positive_rate_mean <- mean(rpart_false_positive_rate)
@@ -1674,9 +1676,9 @@ if(use_parallel == "Y"){
 
     svm_true_positive_rate[i] <- sum(diag(svm_table)) / sum(svm_table)
     svm_true_positive_rate_mean <- mean(svm_true_positive_rate[i])
-    svm_true_negative_rate[i] <- 0.5*(sum(diag(svm_table))) / sum(svm_table)
+    svm_true_negative_rate[i] <- 0.5 * (sum(diag(svm_table))) / sum(svm_table)
     svm_true_negative_rate_mean <- mean(svm_true_negative_rate)
-    svm_false_negative_rate[i] <-  1 - svm_true_positive_rate[i]
+    svm_false_negative_rate[i] <- 1 - svm_true_positive_rate[i]
     svm_false_negative_rate_mean <- mean(svm_false_negative_rate)
     svm_false_positive_rate[i] <- 1 - svm_true_negative_rate[i]
     svm_false_positive_rate_mean <- mean(svm_false_positive_rate)
@@ -1732,9 +1734,9 @@ if(use_parallel == "Y"){
 
     tree_true_positive_rate[i] <- sum(diag(tree_table)) / sum(tree_table)
     tree_true_positive_rate_mean <- mean(tree_true_positive_rate[i])
-    tree_true_negative_rate[i] <- 0.5*(sum(diag(tree_table))) / sum(tree_table)
+    tree_true_negative_rate[i] <- 0.5 * (sum(diag(tree_table))) / sum(tree_table)
     tree_true_negative_rate_mean <- mean(tree_true_negative_rate)
-    tree_false_negative_rate[i] <-  1 - tree_true_positive_rate[i]
+    tree_false_negative_rate[i] <- 1 - tree_true_positive_rate[i]
     tree_false_negative_rate_mean <- mean(tree_false_negative_rate)
     tree_false_positive_rate[i] <- 1 - tree_true_negative_rate[i]
     tree_false_positive_rate_mean <- mean(tree_false_positive_rate)
@@ -1808,7 +1810,7 @@ if(use_parallel == "Y"){
       eval_metric = "mlogloss",
       num_class = length(levels(df$y))
     )
-    xgb_model <- xgboost::xgb.train (
+    xgb_model <- xgboost::xgb.train(
       params = xgb_params,
       data = xgb_train,
       nrounds = 5000,
@@ -1848,7 +1850,7 @@ if(use_parallel == "Y"){
       eval_metric = "mlogloss",
       num_class = length(levels(df$y))
     )
-    xgb_model <- xgboost::xgb.train (
+    xgb_model <- xgboost::xgb.train(
       params = xgb_params,
       data = xgb_train,
       nrounds = 5000,
@@ -1878,9 +1880,9 @@ if(use_parallel == "Y"){
 
     xgb_true_positive_rate[i] <- sum(diag(xgb_table)) / sum(xgb_table)
     xgb_true_positive_rate_mean <- mean(xgb_true_positive_rate[i])
-    xgb_true_negative_rate[i] <- 0.5*(sum(diag(xgb_table))) / sum(xgb_table)
+    xgb_true_negative_rate[i] <- 0.5 * (sum(diag(xgb_table))) / sum(xgb_table)
     xgb_true_negative_rate_mean <- mean(xgb_true_negative_rate)
-    xgb_false_negative_rate[i] <-  1 - xgb_true_positive_rate[i]
+    xgb_false_negative_rate[i] <- 1 - xgb_true_positive_rate[i]
     xgb_false_negative_rate_mean <- mean(xgb_false_negative_rate)
     xgb_false_positive_rate[i] <- 1 - xgb_true_negative_rate[i]
     xgb_false_positive_rate_mean <- mean(xgb_false_positive_rate)
@@ -1913,7 +1915,7 @@ if(use_parallel == "Y"){
       "Regularized_Discriminant_Analysis" = c(rda_test_pred$class, rda_validation_pred$class),
       "RPart" = c(rpart_test_pred, rpart_validation_pred),
       "Support_Vector_Machines" = c(svm_test_pred, svm_validation_pred),
-      "Trees" =c(tree_test_pred, tree_validation_pred),
+      "Trees" = c(tree_test_pred, tree_validation_pred),
       "XGBoost" = c(xgb_test_pred, xgb_validation_pred)
     )
 
@@ -1931,7 +1933,7 @@ if(use_parallel == "Y"){
 
     #### Ensemble Baging with ADA bag ####
     ensemble_adabag_start <- Sys.time()
-    ensemble_adabag_train_fit <-  ipred::bagging(formula = y ~ ., data = ensemble_train)
+    ensemble_adabag_train_fit <- ipred::bagging(formula = y ~ ., data = ensemble_train)
     ensemble_adabag_train_pred <- predict(object = ensemble_adabag_train_fit, newdata = ensemble_train)
     ensemble_adabag_train_table <- table(ensemble_adabag_train_pred, ensemble_y_train)
     ensemble_adabag_train_accuracy[i] <- sum(diag(ensemble_adabag_train_table)) / sum(ensemble_adabag_train_table)
@@ -1973,9 +1975,9 @@ if(use_parallel == "Y"){
 
     ensemble_adabag_true_positive_rate[i] <- sum(diag(ensemble_adabag_table)) / sum(ensemble_adabag_table)
     ensemble_adabag_true_positive_rate_mean <- mean(ensemble_adabag_true_positive_rate[i])
-    ensemble_adabag_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_adabag_table))) / sum(ensemble_adabag_table)
+    ensemble_adabag_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_adabag_table))) / sum(ensemble_adabag_table)
     ensemble_adabag_true_negative_rate_mean <- mean(ensemble_adabag_true_negative_rate)
-    ensemble_adabag_false_negative_rate[i] <-  1 - ensemble_adabag_true_positive_rate[i]
+    ensemble_adabag_false_negative_rate[i] <- 1 - ensemble_adabag_true_positive_rate[i]
     ensemble_adabag_false_negative_rate_mean <- mean(ensemble_adabag_false_negative_rate)
     ensemble_adabag_false_positive_rate[i] <- 1 - ensemble_adabag_true_negative_rate[i]
     ensemble_adabag_false_positive_rate_mean <- mean(ensemble_adabag_false_positive_rate)
@@ -2031,9 +2033,9 @@ if(use_parallel == "Y"){
 
     ensemble_adaboost_true_positive_rate[i] <- sum(diag(ensemble_adaboost_table)) / sum(ensemble_adaboost_table)
     ensemble_adaboost_true_positive_rate_mean <- mean(ensemble_adaboost_true_positive_rate[i])
-    ensemble_adaboost_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_adaboost_table))) / sum(ensemble_adaboost_table)
+    ensemble_adaboost_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_adaboost_table))) / sum(ensemble_adaboost_table)
     ensemble_adaboost_true_negative_rate_mean <- mean(ensemble_adaboost_true_negative_rate)
-    ensemble_adaboost_false_negative_rate[i] <-  1 - ensemble_adaboost_true_positive_rate[i]
+    ensemble_adaboost_false_negative_rate[i] <- 1 - ensemble_adaboost_true_positive_rate[i]
     ensemble_adaboost_false_negative_rate_mean <- mean(ensemble_adaboost_false_negative_rate)
     ensemble_adaboost_false_positive_rate[i] <- 1 - ensemble_adaboost_true_negative_rate[i]
     ensemble_adaboost_false_positive_rate_mean <- mean(ensemble_adaboost_false_positive_rate)
@@ -2086,9 +2088,9 @@ if(use_parallel == "Y"){
 
     ensemble_bag_cart_true_positive_rate[i] <- sum(diag(ensemble_bag_cart_table)) / sum(ensemble_bag_cart_table)
     ensemble_bag_cart_true_positive_rate_mean <- mean(ensemble_bag_cart_true_positive_rate[i])
-    ensemble_bag_cart_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_bag_cart_table))) / sum(ensemble_bag_cart_table)
+    ensemble_bag_cart_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_bag_cart_table))) / sum(ensemble_bag_cart_table)
     ensemble_bag_cart_true_negative_rate_mean <- mean(ensemble_bag_cart_true_negative_rate)
-    ensemble_bag_cart_false_negative_rate[i] <-  1 - ensemble_bag_cart_true_positive_rate[i]
+    ensemble_bag_cart_false_negative_rate[i] <- 1 - ensemble_bag_cart_true_positive_rate[i]
     ensemble_bag_cart_false_negative_rate_mean <- mean(ensemble_bag_cart_false_negative_rate)
     ensemble_bag_cart_false_positive_rate[i] <- 1 - ensemble_bag_cart_true_negative_rate[i]
     ensemble_bag_cart_false_positive_rate_mean <- mean(ensemble_bag_cart_false_positive_rate)
@@ -2143,9 +2145,9 @@ if(use_parallel == "Y"){
 
     ensemble_bag_rf_true_positive_rate[i] <- sum(diag(ensemble_bag_rf_table)) / sum(ensemble_bag_rf_table)
     ensemble_bag_rf_true_positive_rate_mean <- mean(ensemble_bag_rf_true_positive_rate[i])
-    ensemble_bag_rf_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_bag_rf_table))) / sum(ensemble_bag_rf_table)
+    ensemble_bag_rf_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_bag_rf_table))) / sum(ensemble_bag_rf_table)
     ensemble_bag_rf_true_negative_rate_mean <- mean(ensemble_bag_rf_true_negative_rate)
-    ensemble_bag_rf_false_negative_rate[i] <-  1 - ensemble_bag_rf_true_positive_rate[i]
+    ensemble_bag_rf_false_negative_rate[i] <- 1 - ensemble_bag_rf_true_positive_rate[i]
     ensemble_bag_rf_false_negative_rate_mean <- mean(ensemble_bag_rf_false_negative_rate)
     ensemble_bag_rf_false_positive_rate[i] <- 1 - ensemble_bag_rf_true_negative_rate[i]
     ensemble_bag_rf_false_positive_rate_mean <- mean(ensemble_bag_rf_false_positive_rate)
@@ -2197,9 +2199,9 @@ if(use_parallel == "Y"){
 
     ensemble_C50_true_positive_rate[i] <- sum(diag(ensemble_C50_table)) / sum(ensemble_C50_table)
     ensemble_C50_true_positive_rate_mean <- mean(ensemble_C50_true_positive_rate[i])
-    ensemble_C50_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_C50_table))) / sum(ensemble_C50_table)
+    ensemble_C50_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_C50_table))) / sum(ensemble_C50_table)
     ensemble_C50_true_negative_rate_mean <- mean(ensemble_C50_true_negative_rate)
-    ensemble_C50_false_negative_rate[i] <-  1 - ensemble_C50_true_positive_rate[i]
+    ensemble_C50_false_negative_rate[i] <- 1 - ensemble_C50_true_positive_rate[i]
     ensemble_C50_false_negative_rate_mean <- mean(ensemble_C50_false_negative_rate)
     ensemble_C50_false_positive_rate[i] <- 1 - ensemble_C50_true_negative_rate[i]
     ensemble_C50_false_positive_rate_mean <- mean(ensemble_C50_false_positive_rate)
@@ -2257,9 +2259,9 @@ if(use_parallel == "Y"){
 
     ensemble_n_bayes_true_positive_rate[i] <- sum(diag(ensemble_n_bayes_table)) / sum(ensemble_n_bayes_table)
     ensemble_n_bayes_true_positive_rate_mean <- mean(ensemble_n_bayes_true_positive_rate[i])
-    ensemble_n_bayes_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_n_bayes_table))) / sum(ensemble_n_bayes_table)
+    ensemble_n_bayes_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_n_bayes_table))) / sum(ensemble_n_bayes_table)
     ensemble_n_bayes_true_negative_rate_mean <- mean(ensemble_n_bayes_true_negative_rate)
-    ensemble_n_bayes_false_negative_rate[i] <-  1 - ensemble_n_bayes_true_positive_rate[i]
+    ensemble_n_bayes_false_negative_rate[i] <- 1 - ensemble_n_bayes_true_positive_rate[i]
     ensemble_n_bayes_false_negative_rate_mean <- mean(ensemble_n_bayes_false_negative_rate)
     ensemble_n_bayes_false_positive_rate[i] <- 1 - ensemble_n_bayes_true_negative_rate[i]
     ensemble_n_bayes_false_positive_rate_mean <- mean(ensemble_n_bayes_false_positive_rate)
@@ -2317,9 +2319,9 @@ if(use_parallel == "Y"){
 
     ensemble_ranger_true_positive_rate[i] <- sum(diag(ensemble_ranger_table)) / sum(ensemble_ranger_table)
     ensemble_ranger_true_positive_rate_mean <- mean(ensemble_ranger_true_positive_rate[i])
-    ensemble_ranger_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_ranger_table))) / sum(ensemble_ranger_table)
+    ensemble_ranger_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_ranger_table))) / sum(ensemble_ranger_table)
     ensemble_ranger_true_negative_rate_mean <- mean(ensemble_ranger_true_negative_rate)
-    ensemble_ranger_false_negative_rate[i] <-  1 - ensemble_ranger_true_positive_rate[i]
+    ensemble_ranger_false_negative_rate[i] <- 1 - ensemble_ranger_true_positive_rate[i]
     ensemble_ranger_false_negative_rate_mean <- mean(ensemble_ranger_false_negative_rate)
     ensemble_ranger_false_positive_rate[i] <- 1 - ensemble_ranger_true_negative_rate[i]
     ensemble_ranger_false_positive_rate_mean <- mean(ensemble_ranger_false_positive_rate)
@@ -2374,9 +2376,9 @@ if(use_parallel == "Y"){
 
     ensemble_rf_true_positive_rate[i] <- sum(diag(ensemble_rf_table)) / sum(ensemble_rf_table)
     ensemble_rf_true_positive_rate_mean <- mean(ensemble_rf_true_positive_rate[i])
-    ensemble_rf_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_rf_table))) / sum(ensemble_rf_table)
+    ensemble_rf_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_rf_table))) / sum(ensemble_rf_table)
     ensemble_rf_true_negative_rate_mean <- mean(ensemble_rf_true_negative_rate)
-    ensemble_rf_false_negative_rate[i] <-  1 - ensemble_rf_true_positive_rate[i]
+    ensemble_rf_false_negative_rate[i] <- 1 - ensemble_rf_true_positive_rate[i]
     ensemble_rf_false_negative_rate_mean <- mean(ensemble_rf_false_negative_rate)
     ensemble_rf_false_positive_rate[i] <- 1 - ensemble_rf_true_negative_rate[i]
     ensemble_rf_false_positive_rate_mean <- mean(ensemble_rf_false_positive_rate)
@@ -2428,9 +2430,9 @@ if(use_parallel == "Y"){
 
     ensemble_rda_true_positive_rate[i] <- sum(diag(ensemble_rda_table)) / sum(ensemble_rda_table)
     ensemble_rda_true_positive_rate_mean <- mean(ensemble_rda_true_positive_rate[i])
-    ensemble_rda_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_rda_table))) / sum(ensemble_rda_table)
+    ensemble_rda_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_rda_table))) / sum(ensemble_rda_table)
     ensemble_rda_true_negative_rate_mean <- mean(ensemble_rda_true_negative_rate)
-    ensemble_rda_false_negative_rate[i] <-  1 - ensemble_rda_true_positive_rate[i]
+    ensemble_rda_false_negative_rate[i] <- 1 - ensemble_rda_true_positive_rate[i]
     ensemble_rda_false_negative_rate_mean <- mean(ensemble_rda_false_negative_rate)
     ensemble_rda_false_positive_rate[i] <- 1 - ensemble_rda_true_negative_rate[i]
     ensemble_rda_false_positive_rate_mean <- mean(ensemble_rda_false_positive_rate)
@@ -2488,9 +2490,9 @@ if(use_parallel == "Y"){
 
     ensemble_svm_true_positive_rate[i] <- sum(diag(ensemble_svm_table)) / sum(ensemble_svm_table)
     ensemble_svm_true_positive_rate_mean <- mean(ensemble_svm_true_positive_rate[i])
-    ensemble_svm_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_svm_table))) / sum(ensemble_svm_table)
+    ensemble_svm_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_svm_table))) / sum(ensemble_svm_table)
     ensemble_svm_true_negative_rate_mean <- mean(ensemble_svm_true_negative_rate)
-    ensemble_svm_false_negative_rate[i] <-  1 - ensemble_svm_true_positive_rate[i]
+    ensemble_svm_false_negative_rate[i] <- 1 - ensemble_svm_true_positive_rate[i]
     ensemble_svm_false_negative_rate_mean <- mean(ensemble_svm_false_negative_rate)
     ensemble_svm_false_positive_rate[i] <- 1 - ensemble_svm_true_negative_rate[i]
     ensemble_svm_false_positive_rate_mean <- mean(ensemble_svm_false_positive_rate)
@@ -2545,9 +2547,9 @@ if(use_parallel == "Y"){
 
     ensemble_tree_true_positive_rate[i] <- sum(diag(ensemble_tree_table)) / sum(ensemble_tree_table)
     ensemble_tree_true_positive_rate_mean <- mean(ensemble_tree_true_positive_rate[i])
-    ensemble_tree_true_negative_rate[i] <- 0.5*(sum(diag(ensemble_tree_table))) / sum(ensemble_tree_table)
+    ensemble_tree_true_negative_rate[i] <- 0.5 * (sum(diag(ensemble_tree_table))) / sum(ensemble_tree_table)
     ensemble_tree_true_negative_rate_mean <- mean(ensemble_tree_true_negative_rate)
-    ensemble_tree_false_negative_rate[i] <-  1 - ensemble_tree_true_positive_rate[i]
+    ensemble_tree_false_negative_rate[i] <- 1 - ensemble_tree_true_positive_rate[i]
     ensemble_tree_false_negative_rate_mean <- mean(ensemble_tree_false_negative_rate)
     ensemble_tree_false_positive_rate[i] <- 1 - ensemble_tree_true_negative_rate[i]
     ensemble_tree_false_positive_rate_mean <- mean(ensemble_tree_false_positive_rate)
@@ -2555,164 +2557,184 @@ if(use_parallel == "Y"){
     ensemble_tree_F1_score_mean <- mean(ensemble_tree_F1_score[i])
 
     ensemble_tree_end <- Sys.time()
-    ensemble_tree_duration[i] <- ensemble_tree_end -ensemble_tree_start
+    ensemble_tree_duration[i] <- ensemble_tree_end - ensemble_tree_start
     ensemble_tree_duration_mean <- mean(ensemble_tree_duration)
-
   }
 
   Results <- data.frame(
-    'Model' = c('Ada bag', 'Ada boost', 'Bagging', 'Bagged Random Forest', 'C50', 'Flexible Discriminant Analysis',
-                'Gaussian Process', 'Least Squares Support Vector Machines', 'Linear', 'Mixture Discriminant Analysis', 'Naive Bayes', 'Quadratic Discriminant Analysis',
-                'Partial Least Squares', 'Penalized Discrmininant Analysis', 'Random Forest', 'Ranger', 'Regularized Discriminant Analysis',
-                'RPart', 'Support Vector Machines', 'Trees', 'XGBoost',
-                'Ensemble ADA Bag', 'Ensemble ADA Boost', 'Ensemble Bagged Cart', 'Ensemble Bagged Random Forest', 'Ensemble C50',
-                'Ensemble Naive Bayes', 'Ensemble Ranger', 'Ensemble Random Forest', 'Ensemble Regularized Discrmininant Analysis', "Ensemble Support Vector Machines",
-                "Ensemble Trees"),
-
-    'Mean_Holdout_Accuracy' = round(c(adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean,
-                                      C50_holdout_mean, fda_holdout_mean, gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean, mda_holdout_mean,
-                                      n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean, pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean,
-                                      rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
-                                      ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean, ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
-                                      ensemble_n_bayes_holdout_mean, ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean,
-                                      ensemble_tree_holdout_mean), 4),
-
-    'Duration' = round(c(adabag_duration_mean, adaboost_duration_mean, bagging_duration_mean, bag_rf_duration_mean,
-                         C50_duration_mean, fda_duration_mean, gausspr_duration_mean, lssvm_duration_mean, linear_duration_mean, mda_duration_mean,
-                         n_bayes_duration_mean, qda_duration_mean, pls_duration_mean, pda_duration_mean, rf_duration_mean, ranger_duration_mean,
-                         rda_duration_mean, rpart_duration_mean, svm_duration_mean, tree_duration_mean, xgb_duration_mean,
-                         ensemble_adabag_duration_mean, ensemble_adaboost_duration_mean, ensemble_bag_cart_duration_mean, ensemble_bag_rf_duration_mean, ensemble_C50_duration_mean,
-                         ensemble_n_bayes_duration_mean, ensemble_ranger_duration_mean, ensemble_rf_duration_mean, ensemble_rda_duration_mean, ensemble_svm_duration_mean,
-                         ensemble_tree_duration_mean), 4),
-
-    'True_Positive_Rate' = round(c(adabag_true_positive_rate_mean, adaboost_true_positive_rate_mean, bagging_true_positive_rate_mean, bag_rf_true_positive_rate_mean,
-                                   C50_true_positive_rate_mean, fda_true_positive_rate_mean, gausspr_true_positive_rate_mean, lssvm_true_positive_rate_mean, linear_true_positive_rate_mean, mda_true_positive_rate_mean,
-                                   n_bayes_true_positive_rate_mean, qda_true_positive_rate_mean, pls_true_positive_rate_mean, pda_true_positive_rate_mean, rf_true_positive_rate_mean, ranger_true_positive_rate_mean,
-                                   rda_true_positive_rate_mean, rpart_true_positive_rate_mean, svm_true_positive_rate_mean, tree_true_positive_rate_mean, xgb_true_positive_rate_mean,
-                                   ensemble_adabag_true_positive_rate_mean, ensemble_adaboost_true_positive_rate_mean, ensemble_bag_cart_true_positive_rate_mean, ensemble_bag_rf_true_positive_rate_mean, ensemble_C50_true_positive_rate_mean,
-                                   ensemble_n_bayes_true_positive_rate_mean, ensemble_ranger_true_positive_rate_mean, ensemble_rf_true_positive_rate_mean, ensemble_rda_true_positive_rate_mean, ensemble_svm_true_positive_rate_mean,
-                                   ensemble_tree_true_positive_rate_mean), 4),
-
-    'True_negative_Rate' = round(c(adabag_true_negative_rate_mean, adaboost_true_negative_rate_mean, bagging_true_negative_rate_mean, bag_rf_true_negative_rate_mean,
-                                   C50_true_negative_rate_mean, fda_true_negative_rate_mean, gausspr_true_negative_rate_mean, lssvm_true_negative_rate_mean, linear_true_negative_rate_mean, mda_true_negative_rate_mean,
-                                   n_bayes_true_negative_rate_mean, qda_true_negative_rate_mean, pls_true_negative_rate_mean, pda_true_negative_rate_mean, rf_true_negative_rate_mean, ranger_true_negative_rate_mean,
-                                   rda_true_negative_rate_mean, rpart_true_negative_rate_mean, svm_true_negative_rate_mean, tree_true_negative_rate_mean, xgb_true_negative_rate_mean,
-                                   ensemble_adabag_true_negative_rate_mean, ensemble_adaboost_true_negative_rate_mean, ensemble_bag_cart_true_negative_rate_mean, ensemble_bag_rf_true_negative_rate_mean, ensemble_C50_true_negative_rate_mean,
-                                   ensemble_n_bayes_true_negative_rate_mean, ensemble_ranger_true_negative_rate_mean, ensemble_rf_true_negative_rate_mean, ensemble_rda_true_negative_rate_mean, ensemble_svm_true_negative_rate_mean,
-                                   ensemble_tree_true_negative_rate_mean), 4),
-
-    'false_positive_Rate' = round(c(adabag_false_positive_rate_mean, adaboost_false_positive_rate_mean, bagging_false_positive_rate_mean, bag_rf_false_positive_rate_mean,
-                                    C50_false_positive_rate_mean, fda_false_positive_rate_mean, gausspr_false_positive_rate_mean, lssvm_false_positive_rate_mean, linear_false_positive_rate_mean, mda_false_positive_rate_mean,
-                                    n_bayes_false_positive_rate_mean, qda_false_positive_rate_mean, pls_false_positive_rate_mean, pda_false_positive_rate_mean, rf_false_positive_rate_mean, ranger_false_positive_rate_mean,
-                                    rda_false_positive_rate_mean, rpart_false_positive_rate_mean, svm_false_positive_rate_mean, tree_false_positive_rate_mean, xgb_false_positive_rate_mean,
-                                    ensemble_adabag_false_positive_rate_mean, ensemble_adaboost_false_positive_rate_mean, ensemble_bag_cart_false_positive_rate_mean, ensemble_bag_rf_false_positive_rate_mean, ensemble_C50_false_positive_rate_mean,
-                                    ensemble_n_bayes_false_positive_rate_mean, ensemble_ranger_false_positive_rate_mean, ensemble_rf_false_positive_rate_mean, ensemble_rda_false_positive_rate_mean, ensemble_svm_false_positive_rate_mean,
-                                    ensemble_tree_false_positive_rate_mean), 4),
-
-    'False_negative_Rate' = round(c(adabag_false_negative_rate_mean, adaboost_false_negative_rate_mean, bagging_false_negative_rate_mean, bag_rf_false_negative_rate_mean,
-                                    C50_false_negative_rate_mean, fda_false_negative_rate_mean, gausspr_false_negative_rate_mean, lssvm_false_negative_rate_mean, linear_false_negative_rate_mean, mda_false_negative_rate_mean,
-                                    n_bayes_false_negative_rate_mean, qda_false_negative_rate_mean, pls_false_negative_rate_mean, pda_false_negative_rate_mean, rf_false_negative_rate_mean, ranger_false_negative_rate_mean,
-                                    rda_false_negative_rate_mean, rpart_false_negative_rate_mean, svm_false_negative_rate_mean, tree_false_negative_rate_mean, xgb_false_negative_rate_mean,
-                                    ensemble_adabag_false_negative_rate_mean, ensemble_adaboost_false_negative_rate_mean, ensemble_bag_cart_false_negative_rate_mean, ensemble_bag_rf_false_negative_rate_mean, ensemble_C50_false_negative_rate_mean,
-                                    ensemble_n_bayes_false_negative_rate_mean, ensemble_ranger_false_negative_rate_mean, ensemble_rf_false_negative_rate_mean, ensemble_rda_false_negative_rate_mean, ensemble_svm_false_negative_rate_mean,
-                                    ensemble_tree_false_negative_rate_mean), 4),
-
-    'F1_score' = round(c(adabag_F1_score_mean, adaboost_F1_score_mean, bagging_F1_score_mean, bag_rf_F1_score_mean,
-                         C50_F1_score_mean, fda_F1_score_mean, gausspr_F1_score_mean, lssvm_F1_score_mean, linear_F1_score_mean, mda_F1_score_mean,
-                         n_bayes_F1_score_mean, qda_F1_score_mean, pls_F1_score_mean, pda_F1_score_mean, rf_F1_score_mean, ranger_F1_score_mean,
-                         rda_F1_score_mean, rpart_F1_score_mean, svm_F1_score_mean, tree_F1_score_mean, xgb_F1_score_mean,
-                         ensemble_adabag_F1_score_mean, ensemble_adaboost_F1_score_mean, ensemble_bag_cart_F1_score_mean, ensemble_bag_rf_F1_score_mean, ensemble_C50_F1_score_mean,
-                         ensemble_n_bayes_F1_score_mean, ensemble_ranger_F1_score_mean, ensemble_rf_F1_score_mean, ensemble_rda_F1_score_mean, ensemble_svm_F1_score_mean,
-                         ensemble_tree_F1_score_mean), 4),
-
-    'Train_Accuracy' = round(c(adabag_train_accuracy_mean, adaboost_train_accuracy_mean, bagging_train_accuracy_mean, bag_rf_train_accuracy_mean,
-                               C50_train_accuracy_mean, fda_train_accuracy_mean, gausspr_train_accuracy_mean, lssvm_train_accuracy_mean, linear_train_accuracy_mean,
-                               mda_train_accuracy_mean, n_bayes_train_accuracy_mean, qda_train_accuracy_mean, pls_train_accuracy_mean, pda_train_accuracy_mean, rf_train_accuracy_mean, ranger_train_accuracy_mean,
-                               rda_train_accuracy_mean, rpart_train_accuracy_mean, svm_train_accuracy_mean, tree_train_accuracy_mean, xgb_train_accuracy_mean,
-                               ensemble_adabag_train_accuracy_mean, ensemble_adaboost_train_accuracy_mean, ensemble_bag_cart_train_accuracy_mean, ensemble_bag_rf_train_accuracy_mean,
-                               ensemble_C50_train_accuracy_mean, ensemble_n_bayes_train_accuracy_mean,
-                               ensemble_ranger_train_accuracy_mean, ensemble_rf_train_accuracy_mean, ensemble_rda_train_accuracy_mean, ensemble_svm_train_accuracy_mean, ensemble_tree_train_accuracy_mean), 4),
-
-    'Test_Accuracy' = round(c(adabag_test_accuracy_mean, adaboost_test_accuracy_mean, bagging_test_accuracy_mean, bag_rf_test_accuracy_mean,
-                              C50_test_accuracy_mean, fda_test_accuracy_mean, gausspr_test_accuracy_mean, lssvm_test_accuracy_mean, linear_test_accuracy_mean,
-                              mda_test_accuracy_mean, n_bayes_test_accuracy_mean, qda_test_accuracy_mean, pls_test_accuracy_mean, pda_test_accuracy_mean, rf_test_accuracy_mean, ranger_test_accuracy_mean,
-                              rda_test_accuracy_mean, rpart_test_accuracy_mean, svm_test_accuracy_mean, tree_test_accuracy_mean, xgb_test_accuracy_mean,
-                              ensemble_adabag_test_accuracy_mean, ensemble_adaboost_test_accuracy_mean, ensemble_bag_cart_test_accuracy_mean, ensemble_bag_rf_test_accuracy_mean,
-                              ensemble_C50_test_accuracy_mean, ensemble_n_bayes_test_accuracy_mean,
-                              ensemble_ranger_test_accuracy_mean, ensemble_rf_test_accuracy_mean, ensemble_rda_test_accuracy_mean, ensemble_svm_test_accuracy_mean, ensemble_tree_test_accuracy_mean), 4),
-
-    'Validation_Accuracy' = round(c(adabag_validation_accuracy_mean, adaboost_validation_accuracy_mean, bagging_validation_accuracy_mean, bag_rf_validation_accuracy_mean,
-                                    C50_validation_accuracy_mean,  fda_validation_accuracy_mean, gausspr_validation_accuracy_mean, lssvm_validation_accuracy_mean,
-                                    linear_validation_accuracy_mean, mda_validation_accuracy_mean, n_bayes_validation_accuracy_mean, qda_validation_accuracy_mean, pls_validation_accuracy_mean,
-                                    pda_validation_accuracy_mean, rf_validation_accuracy_mean, ranger_validation_accuracy_mean, rda_validation_accuracy_mean, rpart_validation_accuracy_mean,
-                                    svm_validation_accuracy_mean, tree_validation_accuracy_mean, xgb_validation_accuracy_mean,
-                                    ensemble_adabag_validation_accuracy_mean, ensemble_adaboost_validation_accuracy_mean, ensemble_bag_cart_validation_accuracy_mean, ensemble_bag_rf_validation_accuracy_mean, ensemble_C50_validation_accuracy_mean,
-                                    ensemble_n_bayes_validation_accuracy_mean, ensemble_ranger_validation_accuracy_mean,
-                                    ensemble_rf_validation_accuracy_mean, ensemble_rda_validation_accuracy_mean, ensemble_svm_validation_accuracy_mean, ensemble_tree_validation_accuracy_mean), 4),
-
-    'Overfitting' = round(c(adabag_overfitting_mean, adaboost_overfitting_mean, bagging_overfitting_mean, bag_rf_overfitting_mean,
-                            C50_overfitting_mean, fda_overfitting_mean, gausspr_overfitting_mean, lssvm_overfitting_mean, linear_overfitting_mean, mda_overfitting_mean,
-                            n_bayes_overfitting_mean, qda_overfitting_mean, pls_overfitting_mean, pda_overfitting_mean, rf_overfitting_mean, ranger_overfitting_mean, rda_overfitting_mean,
-                            rpart_overfitting_mean, svm_overfitting_mean, tree_overfitting_mean, xgb_overfitting_mean,
-                            ensemble_adabag_overfitting_mean, ensemble_adaboost_overfitting_mean, ensemble_bag_cart_overfitting_mean, ensemble_bag_rf_overfitting_mean, ensemble_C50_overfitting_mean,
-                            ensemble_n_bayes_overfitting_mean, ensemble_ranger_overfitting_mean, ensemble_rf_overfitting_mean,
-                            ensemble_rda_overfitting_mean, ensemble_svm_overfitting_mean, ensemble_tree_overfitting_mean), 4),
-
-    'Diagonal_Sum' = round(c(adabag_table_sum_diag, adaboost_table_sum_diag, bagging_table_sum_diag, bag_rf_table_sum_diag,
-                             C50_table_sum_diag, fda_table_sum_diag, gausspr_table_sum_diag, lssvm_table_sum_diag, linear_table_sum_diag, mda_table_sum_diag,
-                             n_bayes_table_sum_diag, qda_table_sum_diag, pls_table_sum_diag, pda_table_sum_diag, rf_table_sum_diag, ranger_table_sum_diag, rda_table_sum_diag,
-                             rpart_table_sum_diag, svm_table_sum_diag, tree_table_sum_diag, xgb_table_sum_diag,
-                             ensemble_adabag_table_sum_diag, ensemble_adaboost_table_sum_diag, ensemble_bag_cart_table_sum_diag, ensemble_bag_rf_table_sum_diag, ensemble_C50_table_sum_diag,
-                             ensemble_n_bayes_table_sum_diag, ensemble_ranger_table_sum_diag, ensemble_rf_table_sum_diag, ensemble_rda_table_sum_diag,
-                             ensemble_svm_table_sum_diag, ensemble_tree_table_sum_diag), 4)
+    "Model" = c(
+      "Ada bag", "Ada boost", "Bagging", "Bagged Random Forest", "C50", "Flexible Discriminant Analysis",
+      "Gaussian Process", "Least Squares Support Vector Machines", "Linear", "Mixture Discriminant Analysis", "Naive Bayes", "Quadratic Discriminant Analysis",
+      "Partial Least Squares", "Penalized Discrmininant Analysis", "Random Forest", "Ranger", "Regularized Discriminant Analysis",
+      "RPart", "Support Vector Machines", "Trees", "XGBoost",
+      "Ensemble ADA Bag", "Ensemble ADA Boost", "Ensemble Bagged Cart", "Ensemble Bagged Random Forest", "Ensemble C50",
+      "Ensemble Naive Bayes", "Ensemble Ranger", "Ensemble Random Forest", "Ensemble Regularized Discrmininant Analysis", "Ensemble Support Vector Machines",
+      "Ensemble Trees"
+    ),
+    "Mean_Holdout_Accuracy" = round(c(
+      adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean,
+      C50_holdout_mean, fda_holdout_mean, gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean, mda_holdout_mean,
+      n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean, pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean,
+      rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
+      ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean, ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
+      ensemble_n_bayes_holdout_mean, ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean,
+      ensemble_tree_holdout_mean
+    ), 4),
+    "Duration" = round(c(
+      adabag_duration_mean, adaboost_duration_mean, bagging_duration_mean, bag_rf_duration_mean,
+      C50_duration_mean, fda_duration_mean, gausspr_duration_mean, lssvm_duration_mean, linear_duration_mean, mda_duration_mean,
+      n_bayes_duration_mean, qda_duration_mean, pls_duration_mean, pda_duration_mean, rf_duration_mean, ranger_duration_mean,
+      rda_duration_mean, rpart_duration_mean, svm_duration_mean, tree_duration_mean, xgb_duration_mean,
+      ensemble_adabag_duration_mean, ensemble_adaboost_duration_mean, ensemble_bag_cart_duration_mean, ensemble_bag_rf_duration_mean, ensemble_C50_duration_mean,
+      ensemble_n_bayes_duration_mean, ensemble_ranger_duration_mean, ensemble_rf_duration_mean, ensemble_rda_duration_mean, ensemble_svm_duration_mean,
+      ensemble_tree_duration_mean
+    ), 4),
+    "True_Positive_Rate" = round(c(
+      adabag_true_positive_rate_mean, adaboost_true_positive_rate_mean, bagging_true_positive_rate_mean, bag_rf_true_positive_rate_mean,
+      C50_true_positive_rate_mean, fda_true_positive_rate_mean, gausspr_true_positive_rate_mean, lssvm_true_positive_rate_mean, linear_true_positive_rate_mean, mda_true_positive_rate_mean,
+      n_bayes_true_positive_rate_mean, qda_true_positive_rate_mean, pls_true_positive_rate_mean, pda_true_positive_rate_mean, rf_true_positive_rate_mean, ranger_true_positive_rate_mean,
+      rda_true_positive_rate_mean, rpart_true_positive_rate_mean, svm_true_positive_rate_mean, tree_true_positive_rate_mean, xgb_true_positive_rate_mean,
+      ensemble_adabag_true_positive_rate_mean, ensemble_adaboost_true_positive_rate_mean, ensemble_bag_cart_true_positive_rate_mean, ensemble_bag_rf_true_positive_rate_mean, ensemble_C50_true_positive_rate_mean,
+      ensemble_n_bayes_true_positive_rate_mean, ensemble_ranger_true_positive_rate_mean, ensemble_rf_true_positive_rate_mean, ensemble_rda_true_positive_rate_mean, ensemble_svm_true_positive_rate_mean,
+      ensemble_tree_true_positive_rate_mean
+    ), 4),
+    "True_negative_Rate" = round(c(
+      adabag_true_negative_rate_mean, adaboost_true_negative_rate_mean, bagging_true_negative_rate_mean, bag_rf_true_negative_rate_mean,
+      C50_true_negative_rate_mean, fda_true_negative_rate_mean, gausspr_true_negative_rate_mean, lssvm_true_negative_rate_mean, linear_true_negative_rate_mean, mda_true_negative_rate_mean,
+      n_bayes_true_negative_rate_mean, qda_true_negative_rate_mean, pls_true_negative_rate_mean, pda_true_negative_rate_mean, rf_true_negative_rate_mean, ranger_true_negative_rate_mean,
+      rda_true_negative_rate_mean, rpart_true_negative_rate_mean, svm_true_negative_rate_mean, tree_true_negative_rate_mean, xgb_true_negative_rate_mean,
+      ensemble_adabag_true_negative_rate_mean, ensemble_adaboost_true_negative_rate_mean, ensemble_bag_cart_true_negative_rate_mean, ensemble_bag_rf_true_negative_rate_mean, ensemble_C50_true_negative_rate_mean,
+      ensemble_n_bayes_true_negative_rate_mean, ensemble_ranger_true_negative_rate_mean, ensemble_rf_true_negative_rate_mean, ensemble_rda_true_negative_rate_mean, ensemble_svm_true_negative_rate_mean,
+      ensemble_tree_true_negative_rate_mean
+    ), 4),
+    "false_positive_Rate" = round(c(
+      adabag_false_positive_rate_mean, adaboost_false_positive_rate_mean, bagging_false_positive_rate_mean, bag_rf_false_positive_rate_mean,
+      C50_false_positive_rate_mean, fda_false_positive_rate_mean, gausspr_false_positive_rate_mean, lssvm_false_positive_rate_mean, linear_false_positive_rate_mean, mda_false_positive_rate_mean,
+      n_bayes_false_positive_rate_mean, qda_false_positive_rate_mean, pls_false_positive_rate_mean, pda_false_positive_rate_mean, rf_false_positive_rate_mean, ranger_false_positive_rate_mean,
+      rda_false_positive_rate_mean, rpart_false_positive_rate_mean, svm_false_positive_rate_mean, tree_false_positive_rate_mean, xgb_false_positive_rate_mean,
+      ensemble_adabag_false_positive_rate_mean, ensemble_adaboost_false_positive_rate_mean, ensemble_bag_cart_false_positive_rate_mean, ensemble_bag_rf_false_positive_rate_mean, ensemble_C50_false_positive_rate_mean,
+      ensemble_n_bayes_false_positive_rate_mean, ensemble_ranger_false_positive_rate_mean, ensemble_rf_false_positive_rate_mean, ensemble_rda_false_positive_rate_mean, ensemble_svm_false_positive_rate_mean,
+      ensemble_tree_false_positive_rate_mean
+    ), 4),
+    "False_negative_Rate" = round(c(
+      adabag_false_negative_rate_mean, adaboost_false_negative_rate_mean, bagging_false_negative_rate_mean, bag_rf_false_negative_rate_mean,
+      C50_false_negative_rate_mean, fda_false_negative_rate_mean, gausspr_false_negative_rate_mean, lssvm_false_negative_rate_mean, linear_false_negative_rate_mean, mda_false_negative_rate_mean,
+      n_bayes_false_negative_rate_mean, qda_false_negative_rate_mean, pls_false_negative_rate_mean, pda_false_negative_rate_mean, rf_false_negative_rate_mean, ranger_false_negative_rate_mean,
+      rda_false_negative_rate_mean, rpart_false_negative_rate_mean, svm_false_negative_rate_mean, tree_false_negative_rate_mean, xgb_false_negative_rate_mean,
+      ensemble_adabag_false_negative_rate_mean, ensemble_adaboost_false_negative_rate_mean, ensemble_bag_cart_false_negative_rate_mean, ensemble_bag_rf_false_negative_rate_mean, ensemble_C50_false_negative_rate_mean,
+      ensemble_n_bayes_false_negative_rate_mean, ensemble_ranger_false_negative_rate_mean, ensemble_rf_false_negative_rate_mean, ensemble_rda_false_negative_rate_mean, ensemble_svm_false_negative_rate_mean,
+      ensemble_tree_false_negative_rate_mean
+    ), 4),
+    "F1_score" = round(c(
+      adabag_F1_score_mean, adaboost_F1_score_mean, bagging_F1_score_mean, bag_rf_F1_score_mean,
+      C50_F1_score_mean, fda_F1_score_mean, gausspr_F1_score_mean, lssvm_F1_score_mean, linear_F1_score_mean, mda_F1_score_mean,
+      n_bayes_F1_score_mean, qda_F1_score_mean, pls_F1_score_mean, pda_F1_score_mean, rf_F1_score_mean, ranger_F1_score_mean,
+      rda_F1_score_mean, rpart_F1_score_mean, svm_F1_score_mean, tree_F1_score_mean, xgb_F1_score_mean,
+      ensemble_adabag_F1_score_mean, ensemble_adaboost_F1_score_mean, ensemble_bag_cart_F1_score_mean, ensemble_bag_rf_F1_score_mean, ensemble_C50_F1_score_mean,
+      ensemble_n_bayes_F1_score_mean, ensemble_ranger_F1_score_mean, ensemble_rf_F1_score_mean, ensemble_rda_F1_score_mean, ensemble_svm_F1_score_mean,
+      ensemble_tree_F1_score_mean
+    ), 4),
+    "Train_Accuracy" = round(c(
+      adabag_train_accuracy_mean, adaboost_train_accuracy_mean, bagging_train_accuracy_mean, bag_rf_train_accuracy_mean,
+      C50_train_accuracy_mean, fda_train_accuracy_mean, gausspr_train_accuracy_mean, lssvm_train_accuracy_mean, linear_train_accuracy_mean,
+      mda_train_accuracy_mean, n_bayes_train_accuracy_mean, qda_train_accuracy_mean, pls_train_accuracy_mean, pda_train_accuracy_mean, rf_train_accuracy_mean, ranger_train_accuracy_mean,
+      rda_train_accuracy_mean, rpart_train_accuracy_mean, svm_train_accuracy_mean, tree_train_accuracy_mean, xgb_train_accuracy_mean,
+      ensemble_adabag_train_accuracy_mean, ensemble_adaboost_train_accuracy_mean, ensemble_bag_cart_train_accuracy_mean, ensemble_bag_rf_train_accuracy_mean,
+      ensemble_C50_train_accuracy_mean, ensemble_n_bayes_train_accuracy_mean,
+      ensemble_ranger_train_accuracy_mean, ensemble_rf_train_accuracy_mean, ensemble_rda_train_accuracy_mean, ensemble_svm_train_accuracy_mean, ensemble_tree_train_accuracy_mean
+    ), 4),
+    "Test_Accuracy" = round(c(
+      adabag_test_accuracy_mean, adaboost_test_accuracy_mean, bagging_test_accuracy_mean, bag_rf_test_accuracy_mean,
+      C50_test_accuracy_mean, fda_test_accuracy_mean, gausspr_test_accuracy_mean, lssvm_test_accuracy_mean, linear_test_accuracy_mean,
+      mda_test_accuracy_mean, n_bayes_test_accuracy_mean, qda_test_accuracy_mean, pls_test_accuracy_mean, pda_test_accuracy_mean, rf_test_accuracy_mean, ranger_test_accuracy_mean,
+      rda_test_accuracy_mean, rpart_test_accuracy_mean, svm_test_accuracy_mean, tree_test_accuracy_mean, xgb_test_accuracy_mean,
+      ensemble_adabag_test_accuracy_mean, ensemble_adaboost_test_accuracy_mean, ensemble_bag_cart_test_accuracy_mean, ensemble_bag_rf_test_accuracy_mean,
+      ensemble_C50_test_accuracy_mean, ensemble_n_bayes_test_accuracy_mean,
+      ensemble_ranger_test_accuracy_mean, ensemble_rf_test_accuracy_mean, ensemble_rda_test_accuracy_mean, ensemble_svm_test_accuracy_mean, ensemble_tree_test_accuracy_mean
+    ), 4),
+    "Validation_Accuracy" = round(c(
+      adabag_validation_accuracy_mean, adaboost_validation_accuracy_mean, bagging_validation_accuracy_mean, bag_rf_validation_accuracy_mean,
+      C50_validation_accuracy_mean, fda_validation_accuracy_mean, gausspr_validation_accuracy_mean, lssvm_validation_accuracy_mean,
+      linear_validation_accuracy_mean, mda_validation_accuracy_mean, n_bayes_validation_accuracy_mean, qda_validation_accuracy_mean, pls_validation_accuracy_mean,
+      pda_validation_accuracy_mean, rf_validation_accuracy_mean, ranger_validation_accuracy_mean, rda_validation_accuracy_mean, rpart_validation_accuracy_mean,
+      svm_validation_accuracy_mean, tree_validation_accuracy_mean, xgb_validation_accuracy_mean,
+      ensemble_adabag_validation_accuracy_mean, ensemble_adaboost_validation_accuracy_mean, ensemble_bag_cart_validation_accuracy_mean, ensemble_bag_rf_validation_accuracy_mean, ensemble_C50_validation_accuracy_mean,
+      ensemble_n_bayes_validation_accuracy_mean, ensemble_ranger_validation_accuracy_mean,
+      ensemble_rf_validation_accuracy_mean, ensemble_rda_validation_accuracy_mean, ensemble_svm_validation_accuracy_mean, ensemble_tree_validation_accuracy_mean
+    ), 4),
+    "Overfitting" = round(c(
+      adabag_overfitting_mean, adaboost_overfitting_mean, bagging_overfitting_mean, bag_rf_overfitting_mean,
+      C50_overfitting_mean, fda_overfitting_mean, gausspr_overfitting_mean, lssvm_overfitting_mean, linear_overfitting_mean, mda_overfitting_mean,
+      n_bayes_overfitting_mean, qda_overfitting_mean, pls_overfitting_mean, pda_overfitting_mean, rf_overfitting_mean, ranger_overfitting_mean, rda_overfitting_mean,
+      rpart_overfitting_mean, svm_overfitting_mean, tree_overfitting_mean, xgb_overfitting_mean,
+      ensemble_adabag_overfitting_mean, ensemble_adaboost_overfitting_mean, ensemble_bag_cart_overfitting_mean, ensemble_bag_rf_overfitting_mean, ensemble_C50_overfitting_mean,
+      ensemble_n_bayes_overfitting_mean, ensemble_ranger_overfitting_mean, ensemble_rf_overfitting_mean,
+      ensemble_rda_overfitting_mean, ensemble_svm_overfitting_mean, ensemble_tree_overfitting_mean
+    ), 4),
+    "Diagonal_Sum" = round(c(
+      adabag_table_sum_diag, adaboost_table_sum_diag, bagging_table_sum_diag, bag_rf_table_sum_diag,
+      C50_table_sum_diag, fda_table_sum_diag, gausspr_table_sum_diag, lssvm_table_sum_diag, linear_table_sum_diag, mda_table_sum_diag,
+      n_bayes_table_sum_diag, qda_table_sum_diag, pls_table_sum_diag, pda_table_sum_diag, rf_table_sum_diag, ranger_table_sum_diag, rda_table_sum_diag,
+      rpart_table_sum_diag, svm_table_sum_diag, tree_table_sum_diag, xgb_table_sum_diag,
+      ensemble_adabag_table_sum_diag, ensemble_adaboost_table_sum_diag, ensemble_bag_cart_table_sum_diag, ensemble_bag_rf_table_sum_diag, ensemble_C50_table_sum_diag,
+      ensemble_n_bayes_table_sum_diag, ensemble_ranger_table_sum_diag, ensemble_rf_table_sum_diag, ensemble_rda_table_sum_diag,
+      ensemble_svm_table_sum_diag, ensemble_tree_table_sum_diag
+    ), 4)
   )
 
   Results <- Results %>% dplyr::arrange(desc(Mean_Holdout_Accuracy))
 
-  Final_results <- reactable::reactable(Results, searchable = TRUE, pagination = FALSE, wrap = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
-                                        striped = TRUE, highlight = TRUE, rownames = TRUE, resizable = TRUE) %>%
+  Final_results <- reactable::reactable(Results,
+    searchable = TRUE, pagination = FALSE, wrap = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
+    striped = TRUE, highlight = TRUE, rownames = TRUE, resizable = TRUE
+  ) %>%
     reactablefmtr::add_title("Classification analysis, accuracy, duration, overfitting, sum of diagonals")
 
-  summary_tables <- list('ADABag' = adabag_table, 'ADABoost' = adaboost_table, 'Bagging' = bagging_table, 'Bagged Random Forest' = bag_rf_table, 'C50' = C50_table,
-                         'Flexible Discrminant Analysis' = fda_table, 'Gaussian Process' = gausspr_table, 'Least Squares Support Vector Machines' = lssvm_table,
-                         'Linear' = linear_table, 'Mixture Discrmininant Analysis' = mda_table, 'Naive Bayes' = n_bayes_table, 'Quadratic Discriminant Analysis' = qda_table,
-                         'Partial Least Sqaures' = pls_table, 'Penalized Discrmininant Ananysis' = pda_table, 'Random Forest' = rf_table,
-                         'Ranger' = ranger_table, 'Regularized Discriminant Analysis' = rda_table, 'RPart' = rpart_table, 'Support Vector Machines' = svm_table,
-                         'Trees' = tree_table, 'XGBoost' = xgb_table,
-                         'Ensemble ADABag' = ensemble_adabag_table, 'Ensemble ADABoost' = ensemble_adaboost_table, 'Ensemble Bagged Cart' = ensemble_bag_cart_table,
-                         'Ensemble Bagged Random Forest' = ensemble_bag_rf_table, 'Ensemble C50' = ensemble_C50_table, 'Ensemble Naive Bayes' = ensemble_n_bayes_table,
-                         'Ensemble Ranger' = ensemble_ranger_table, 'Ensemble Random Forest' = ensemble_rf_table,
-                         'Ensemble Regularized Discrmininant Analysis'= ensemble_rda_table, 'Ensemble Support Vector Machines' = ensemble_svm_table, 'Ensemble Trees' = ensemble_tree_table)
+  summary_tables <- list(
+    "ADABag" = adabag_table, "ADABoost" = adaboost_table, "Bagging" = bagging_table, "Bagged Random Forest" = bag_rf_table, "C50" = C50_table,
+    "Flexible Discrminant Analysis" = fda_table, "Gaussian Process" = gausspr_table, "Least Squares Support Vector Machines" = lssvm_table,
+    "Linear" = linear_table, "Mixture Discrmininant Analysis" = mda_table, "Naive Bayes" = n_bayes_table, "Quadratic Discriminant Analysis" = qda_table,
+    "Partial Least Sqaures" = pls_table, "Penalized Discrmininant Ananysis" = pda_table, "Random Forest" = rf_table,
+    "Ranger" = ranger_table, "Regularized Discriminant Analysis" = rda_table, "RPart" = rpart_table, "Support Vector Machines" = svm_table,
+    "Trees" = tree_table, "XGBoost" = xgb_table,
+    "Ensemble ADABag" = ensemble_adabag_table, "Ensemble ADABoost" = ensemble_adaboost_table, "Ensemble Bagged Cart" = ensemble_bag_cart_table,
+    "Ensemble Bagged Random Forest" = ensemble_bag_rf_table, "Ensemble C50" = ensemble_C50_table, "Ensemble Naive Bayes" = ensemble_n_bayes_table,
+    "Ensemble Ranger" = ensemble_ranger_table, "Ensemble Random Forest" = ensemble_rf_table,
+    "Ensemble Regularized Discrmininant Analysis" = ensemble_rda_table, "Ensemble Support Vector Machines" = ensemble_svm_table, "Ensemble Trees" = ensemble_tree_table
+  )
 
 
   accuracy_data <- data.frame(
-    'count' = 1:numresamples,
-
-    'model' = c(rep('ADA Bag', numresamples), rep('ADA Boost', numresamples), rep('Bagging', numresamples), rep('Bagged Random Forest', numresamples),
-                rep('C50', numresamples), rep('Flexible Discriminant Analysis', numresamples), rep('Gaussian Process', numresamples),
-                rep('Least Squares Support Vector Machines', numresamples), rep('Linear', numresamples), rep('Mixture Discriminant Analysis', numresamples),
-                rep('Naive Bayes', numresamples), rep('Quadratic Discrmininant Analysis', numresamples), rep('Partial Least Squares', numresamples),
-                rep('Penalized Discrmininant Analysis', numresamples), rep('Random Forest', numresamples), rep('Ranger', numresamples), rep('Regularized Discrmininant Analysis', numresamples),
-                rep('RPart', numresamples), rep('Support Vector Machines', numresamples), rep('Trees', numresamples), rep('XGBoost', numresamples),
-                rep('Ensemble ADA Bag', numresamples), rep('Ensemble ADA Boost', numresamples), rep('Ensemble Bagged Cart', numresamples), rep('Ensemble Bagged Random Forest', numresamples),
-                rep('Ensemble C50', numresamples),
-                rep('Ensemble Naive Bayes', numresamples), rep('Ensemble Ranger', numresamples), rep('Ensemble Random Forest', numresamples),
-                rep('Ensemble Regularized Discriminant Analysis', numresamples), rep('Ensemble Support Vector Machines', numresamples),
-                rep('Ensemble Trees', numresamples)),
-
-    'data' = c(adabag_holdout, adaboost_holdout, bagging_holdout, bag_rf_holdout, C50_holdout, fda_holdout, gausspr_holdout, lssvm_holdout, linear_holdout,
-               mda_holdout, n_bayes_holdout, qda_holdout, pls_holdout, pda_holdout, rf_holdout, ranger_holdout, rda_holdout, rpart_holdout, svm_holdout, tree_holdout, xgb_holdout,
-               ensemble_adabag_holdout, ensemble_adaboost_holdout, ensemble_bag_cart_holdout, ensemble_bag_rf_holdout, ensemble_C50_holdout,
-               ensemble_n_bayes_holdout,
-               ensemble_ranger_holdout, ensemble_rf_holdout, ensemble_rda_holdout, ensemble_svm_holdout, ensemble_tree_holdout),
-
-    'mean' = rep(c(adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean, C50_holdout_mean, fda_holdout_mean,
-                   gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean, mda_holdout_mean, n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean,
-                   pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean, rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
-                   ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean,
-                   ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
-                   ensemble_n_bayes_holdout_mean, ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean,
-                   ensemble_tree_holdout_mean), each = numresamples)
+    "count" = 1:numresamples,
+    "model" = c(
+      rep("ADA Bag", numresamples), rep("ADA Boost", numresamples), rep("Bagging", numresamples), rep("Bagged Random Forest", numresamples),
+      rep("C50", numresamples), rep("Flexible Discriminant Analysis", numresamples), rep("Gaussian Process", numresamples),
+      rep("Least Squares Support Vector Machines", numresamples), rep("Linear", numresamples), rep("Mixture Discriminant Analysis", numresamples),
+      rep("Naive Bayes", numresamples), rep("Quadratic Discrmininant Analysis", numresamples), rep("Partial Least Squares", numresamples),
+      rep("Penalized Discrmininant Analysis", numresamples), rep("Random Forest", numresamples), rep("Ranger", numresamples), rep("Regularized Discrmininant Analysis", numresamples),
+      rep("RPart", numresamples), rep("Support Vector Machines", numresamples), rep("Trees", numresamples), rep("XGBoost", numresamples),
+      rep("Ensemble ADA Bag", numresamples), rep("Ensemble ADA Boost", numresamples), rep("Ensemble Bagged Cart", numresamples), rep("Ensemble Bagged Random Forest", numresamples),
+      rep("Ensemble C50", numresamples),
+      rep("Ensemble Naive Bayes", numresamples), rep("Ensemble Ranger", numresamples), rep("Ensemble Random Forest", numresamples),
+      rep("Ensemble Regularized Discriminant Analysis", numresamples), rep("Ensemble Support Vector Machines", numresamples),
+      rep("Ensemble Trees", numresamples)
+    ),
+    "data" = c(
+      adabag_holdout, adaboost_holdout, bagging_holdout, bag_rf_holdout, C50_holdout, fda_holdout, gausspr_holdout, lssvm_holdout, linear_holdout,
+      mda_holdout, n_bayes_holdout, qda_holdout, pls_holdout, pda_holdout, rf_holdout, ranger_holdout, rda_holdout, rpart_holdout, svm_holdout, tree_holdout, xgb_holdout,
+      ensemble_adabag_holdout, ensemble_adaboost_holdout, ensemble_bag_cart_holdout, ensemble_bag_rf_holdout, ensemble_C50_holdout,
+      ensemble_n_bayes_holdout,
+      ensemble_ranger_holdout, ensemble_rf_holdout, ensemble_rda_holdout, ensemble_svm_holdout, ensemble_tree_holdout
+    ),
+    "mean" = rep(c(
+      adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean, C50_holdout_mean, fda_holdout_mean,
+      gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean, mda_holdout_mean, n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean,
+      pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean, rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
+      ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean,
+      ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
+      ensemble_n_bayes_holdout_mean, ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean,
+      ensemble_tree_holdout_mean
+    ), each = numresamples)
   )
 
   accuracy_plot <- ggplot2::ggplot(data = accuracy_data, mapping = ggplot2::aes(x = count, y = data, color = model)) +
@@ -2723,7 +2745,7 @@ if(use_parallel == "Y"){
     ggplot2::facet_wrap(~model, ncol = 4) +
     ggplot2::ggtitle("Accuracy by model, higher is better. \n The black horizontal line is the mean of the results, the red horizontal line is 1.") +
     ggplot2::labs(y = "Accuracy by model, higher is better \n The horizontal line is the mean of the results, the red line is 1.") +
-    ggplot2::theme(legend.position="none")
+    ggplot2::theme(legend.position = "none")
 
 
   ####################################################
@@ -2734,70 +2756,75 @@ if(use_parallel == "Y"){
 
 
   total_data <- data.frame(
-
-    'count' = 1:numresamples,
-
-    'model' = c(rep('ADA Bag', numresamples), rep('ADA Boost', numresamples), rep('Bagging', numresamples), rep('Bagged Random Forest', numresamples),
-                rep('C50', numresamples), rep('Flexible Discriminant Analysis', numresamples), rep('Gaussian Process', numresamples),
-                rep('Least Squares Support Vector Machines', numresamples), rep('Linear', numresamples), rep('Mixture Discriminant Analysis', numresamples),
-                rep('Naive Bayes', numresamples), rep('Quadratic Discrmininant Analysis', numresamples), rep('Partial Least Squares', numresamples),
-                rep('Penalized Discrmininant Analysis', numresamples), rep('Random Forest', numresamples), rep('Ranger', numresamples), rep('Regularized Discrmininant Analysis', numresamples),
-                rep('RPart', numresamples), rep('Support Vector Machines', numresamples), rep('Trees', numresamples), rep('XGBoost', numresamples),
-                rep('Ensemble ADA Bag', numresamples), rep('Ensemble ADA Boost', numresamples), rep('Ensemble Bagged Cart', numresamples), rep('Ensemble Bagged Random Forest', numresamples),
-                rep('Ensemble C50', numresamples),
-                rep('Ensemble Naive Bayes', numresamples), rep('Ensemble Ranger', numresamples), rep('Ensemble Random Forest', numresamples),
-                rep('Ensemble Regularized Discriminant Analysis', numresamples), rep('Ensemble Support Vector Machines', numresamples),
-                rep('Ensemble Trees', numresamples)),
-
-    'train' = c(adabag_train_accuracy, adaboost_train_accuracy, bagging_train_accuracy, bag_rf_train_accuracy, C50_train_accuracy, fda_train_accuracy, gausspr_train_accuracy, lssvm_train_accuracy, linear_train_accuracy,
-                mda_train_accuracy, n_bayes_train_accuracy, qda_train_accuracy, pls_train_accuracy, pda_train_accuracy, rf_train_accuracy, ranger_train_accuracy, rda_train_accuracy, rpart_train_accuracy, svm_train_accuracy, tree_train_accuracy, xgb_train_accuracy,
-                ensemble_adabag_train_accuracy, ensemble_adaboost_train_accuracy, ensemble_bag_cart_train_accuracy, ensemble_bag_rf_train_accuracy, ensemble_C50_train_accuracy,
-                ensemble_n_bayes_train_accuracy,
-                ensemble_ranger_train_accuracy, ensemble_rf_train_accuracy, ensemble_rda_train_accuracy, ensemble_svm_train_accuracy, ensemble_tree_train_accuracy),
-
-    'test' = c(adabag_test_accuracy, adaboost_test_accuracy, bagging_test_accuracy, bag_rf_test_accuracy, C50_test_accuracy, fda_test_accuracy, gausspr_test_accuracy, lssvm_test_accuracy, linear_test_accuracy,
-               mda_test_accuracy, n_bayes_test_accuracy, qda_test_accuracy, pls_test_accuracy, pda_test_accuracy, rf_test_accuracy, ranger_test_accuracy, rda_test_accuracy, rpart_test_accuracy, svm_test_accuracy, tree_test_accuracy, xgb_test_accuracy,
-               ensemble_adabag_test_accuracy, ensemble_adaboost_test_accuracy, ensemble_bag_cart_test_accuracy, ensemble_bag_rf_test_accuracy, ensemble_C50_test_accuracy,
-               ensemble_n_bayes_test_accuracy,
-               ensemble_ranger_test_accuracy, ensemble_rf_test_accuracy, ensemble_rda_test_accuracy, ensemble_svm_test_accuracy, ensemble_tree_test_accuracy),
-
-    'validation' = c(adabag_validation_accuracy, adaboost_validation_accuracy, bagging_validation_accuracy, bag_rf_validation_accuracy, C50_validation_accuracy, fda_validation_accuracy, gausspr_validation_accuracy, lssvm_validation_accuracy, linear_validation_accuracy,
-                     mda_validation_accuracy, n_bayes_validation_accuracy, qda_validation_accuracy, pls_validation_accuracy, pda_validation_accuracy, rf_validation_accuracy, ranger_validation_accuracy, rda_validation_accuracy, rpart_validation_accuracy, svm_validation_accuracy, tree_validation_accuracy, xgb_validation_accuracy,
-                     ensemble_adabag_validation_accuracy, ensemble_adaboost_validation_accuracy, ensemble_bag_cart_validation_accuracy, ensemble_bag_rf_validation_accuracy, ensemble_C50_validation_accuracy,
-                     ensemble_n_bayes_validation_accuracy,
-                     ensemble_ranger_validation_accuracy, ensemble_rf_validation_accuracy, ensemble_rda_validation_accuracy, ensemble_svm_validation_accuracy, ensemble_tree_validation_accuracy),
-
-    'holdout' = c(adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean, C50_holdout_mean, fda_holdout_mean, gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean,
-                  mda_holdout_mean, n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean, pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean, rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
-                  ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean, ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
-                  ensemble_n_bayes_holdout_mean,
-                  ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean, ensemble_tree_holdout_mean)
+    "count" = 1:numresamples,
+    "model" = c(
+      rep("ADA Bag", numresamples), rep("ADA Boost", numresamples), rep("Bagging", numresamples), rep("Bagged Random Forest", numresamples),
+      rep("C50", numresamples), rep("Flexible Discriminant Analysis", numresamples), rep("Gaussian Process", numresamples),
+      rep("Least Squares Support Vector Machines", numresamples), rep("Linear", numresamples), rep("Mixture Discriminant Analysis", numresamples),
+      rep("Naive Bayes", numresamples), rep("Quadratic Discrmininant Analysis", numresamples), rep("Partial Least Squares", numresamples),
+      rep("Penalized Discrmininant Analysis", numresamples), rep("Random Forest", numresamples), rep("Ranger", numresamples), rep("Regularized Discrmininant Analysis", numresamples),
+      rep("RPart", numresamples), rep("Support Vector Machines", numresamples), rep("Trees", numresamples), rep("XGBoost", numresamples),
+      rep("Ensemble ADA Bag", numresamples), rep("Ensemble ADA Boost", numresamples), rep("Ensemble Bagged Cart", numresamples), rep("Ensemble Bagged Random Forest", numresamples),
+      rep("Ensemble C50", numresamples),
+      rep("Ensemble Naive Bayes", numresamples), rep("Ensemble Ranger", numresamples), rep("Ensemble Random Forest", numresamples),
+      rep("Ensemble Regularized Discriminant Analysis", numresamples), rep("Ensemble Support Vector Machines", numresamples),
+      rep("Ensemble Trees", numresamples)
+    ),
+    "train" = c(
+      adabag_train_accuracy, adaboost_train_accuracy, bagging_train_accuracy, bag_rf_train_accuracy, C50_train_accuracy, fda_train_accuracy, gausspr_train_accuracy, lssvm_train_accuracy, linear_train_accuracy,
+      mda_train_accuracy, n_bayes_train_accuracy, qda_train_accuracy, pls_train_accuracy, pda_train_accuracy, rf_train_accuracy, ranger_train_accuracy, rda_train_accuracy, rpart_train_accuracy, svm_train_accuracy, tree_train_accuracy, xgb_train_accuracy,
+      ensemble_adabag_train_accuracy, ensemble_adaboost_train_accuracy, ensemble_bag_cart_train_accuracy, ensemble_bag_rf_train_accuracy, ensemble_C50_train_accuracy,
+      ensemble_n_bayes_train_accuracy,
+      ensemble_ranger_train_accuracy, ensemble_rf_train_accuracy, ensemble_rda_train_accuracy, ensemble_svm_train_accuracy, ensemble_tree_train_accuracy
+    ),
+    "test" = c(
+      adabag_test_accuracy, adaboost_test_accuracy, bagging_test_accuracy, bag_rf_test_accuracy, C50_test_accuracy, fda_test_accuracy, gausspr_test_accuracy, lssvm_test_accuracy, linear_test_accuracy,
+      mda_test_accuracy, n_bayes_test_accuracy, qda_test_accuracy, pls_test_accuracy, pda_test_accuracy, rf_test_accuracy, ranger_test_accuracy, rda_test_accuracy, rpart_test_accuracy, svm_test_accuracy, tree_test_accuracy, xgb_test_accuracy,
+      ensemble_adabag_test_accuracy, ensemble_adaboost_test_accuracy, ensemble_bag_cart_test_accuracy, ensemble_bag_rf_test_accuracy, ensemble_C50_test_accuracy,
+      ensemble_n_bayes_test_accuracy,
+      ensemble_ranger_test_accuracy, ensemble_rf_test_accuracy, ensemble_rda_test_accuracy, ensemble_svm_test_accuracy, ensemble_tree_test_accuracy
+    ),
+    "validation" = c(
+      adabag_validation_accuracy, adaboost_validation_accuracy, bagging_validation_accuracy, bag_rf_validation_accuracy, C50_validation_accuracy, fda_validation_accuracy, gausspr_validation_accuracy, lssvm_validation_accuracy, linear_validation_accuracy,
+      mda_validation_accuracy, n_bayes_validation_accuracy, qda_validation_accuracy, pls_validation_accuracy, pda_validation_accuracy, rf_validation_accuracy, ranger_validation_accuracy, rda_validation_accuracy, rpart_validation_accuracy, svm_validation_accuracy, tree_validation_accuracy, xgb_validation_accuracy,
+      ensemble_adabag_validation_accuracy, ensemble_adaboost_validation_accuracy, ensemble_bag_cart_validation_accuracy, ensemble_bag_rf_validation_accuracy, ensemble_C50_validation_accuracy,
+      ensemble_n_bayes_validation_accuracy,
+      ensemble_ranger_validation_accuracy, ensemble_rf_validation_accuracy, ensemble_rda_validation_accuracy, ensemble_svm_validation_accuracy, ensemble_tree_validation_accuracy
+    ),
+    "holdout" = c(
+      adabag_holdout_mean, adaboost_holdout_mean, bagging_holdout_mean, bag_rf_holdout_mean, C50_holdout_mean, fda_holdout_mean, gausspr_holdout_mean, lssvm_holdout_mean, linear_holdout_mean,
+      mda_holdout_mean, n_bayes_holdout_mean, qda_holdout_mean, pls_holdout_mean, pda_holdout_mean, rf_holdout_mean, ranger_holdout_mean, rda_holdout_mean, rpart_holdout_mean, svm_holdout_mean, tree_holdout_mean, xgb_holdout_mean,
+      ensemble_adabag_holdout_mean, ensemble_adaboost_holdout_mean, ensemble_bag_cart_holdout_mean, ensemble_bag_rf_holdout_mean, ensemble_C50_holdout_mean,
+      ensemble_n_bayes_holdout_mean,
+      ensemble_ranger_holdout_mean, ensemble_rf_holdout_mean, ensemble_rda_holdout_mean, ensemble_svm_holdout_mean, ensemble_tree_holdout_mean
+    )
   )
 
   total_plot <- ggplot2::ggplot(data = total_data, mapping = ggplot2::aes(x = count, y = data, color = model)) +
-    ggplot2::geom_line(mapping = aes(x = count, y = train, color = 'train')) +
+    ggplot2::geom_line(mapping = aes(x = count, y = train, color = "train")) +
     ggplot2::geom_point(mapping = aes(x = count, y = train)) +
-    ggplot2::geom_line(mapping = aes(x = count, y = test, color = 'test')) +
+    ggplot2::geom_line(mapping = aes(x = count, y = test, color = "test")) +
     ggplot2::geom_point(mapping = aes(x = count, y = test)) +
-    ggplot2::geom_line(mapping = aes(x = count, y = validation, color = 'validation')) +
+    ggplot2::geom_line(mapping = aes(x = count, y = validation, color = "validation")) +
     ggplot2::geom_point(mapping = aes(x = count, y = validation)) +
-    ggplot2::geom_line(mapping = aes(x = count, y = holdout, color = 'holdout')) +
+    ggplot2::geom_line(mapping = aes(x = count, y = holdout, color = "holdout")) +
     ggplot2::geom_point(mapping = aes(x = count, y = holdout)) +
     ggplot2::facet_wrap(~model, ncol = 4) +
     ggplot2::ggtitle("Accuracy data including train, test, validation, and mean results, by model. \nRoot Mean Squared Error by model, lower is better. \n The black horizontal line is the mean of the results, the red horizontal line is 0.") +
     ggplot2::labs(y = "Root Mean Squared Error (RMSE), lower is better \n The horizontal line is the mean of the results, the red line is 0.\n") +
-    ggplot2::scale_color_manual(name='Total Results',
-                                breaks=c('train', 'test', 'validation', 'holdout', 'mean'),
-                                values=c('train' = 'blueviolet', 'test' = 'darkcyan', 'validation' = 'darkgray', 'holdout' = 'turquoise1'))
+    ggplot2::scale_color_manual(
+      name = "Total Results",
+      breaks = c("train", "test", "validation", "holdout", "mean"),
+      values = c("train" = "blueviolet", "test" = "darkcyan", "validation" = "darkgray", "holdout" = "turquoise1")
+    )
 
 
 
-  if(do_you_have_new_data == "Y"){
-
+  if (do_you_have_new_data == "Y") {
     newdata <- readline("What is the URL for the new data? ")
     newdata <- read.csv(newdata, stringsAsFactors = TRUE)
-    newdata <- read.csv('/Users/russellconte/NewCarseats.csv', stringsAsFactors = TRUE)
-    colnames(newdata)[colnum] <- 'y'
+    newdata <- read.csv("/Users/russellconte/NewCarseats.csv", stringsAsFactors = TRUE)
+    colnames(newdata)[colnum] <- "y"
     newdata <- newdata %>% dplyr::relocate(y, .after = last_col()) # Moves the target column to the last column on the right
 
     ADA_bag <- predict(object = adabag_train_fit, newdata = newdata)
@@ -2818,8 +2845,8 @@ if(use_parallel == "Y"){
     Ranger <- predict(object = ranger_train_fit, newdata = newdata)
     Regularized_Discriminant_Analysis <- predict(object = rda_train_fit, newdata = newdata)$class
     RPart <- predict(object = rpart_train_fit, newdata = newdata)
-    Support_Vector_Machines = predict(object = svm_train_fit, newdata = newdata)
-    Trees = predict(tree_train_fit, newdata = newdata)
+    Support_Vector_Machines <- predict(object = svm_train_fit, newdata = newdata)
+    Trees <- predict(tree_train_fit, newdata = newdata)
 
     new_ensemble <- data.frame(
       ADA_bag,
@@ -2853,51 +2880,53 @@ if(use_parallel == "Y"){
     new_ensemble_bag_rf <- predict(object = ensemble_bag_train_rf, newdata = new_ensemble)
     new_ensemble_C50 <- predict(object = ensemble_C50_train_fit, newdata = new_ensemble)
     new_ensemble_n_bayes <- predict(object = ensemble_n_bayes_train_fit, newdata = new_ensemble)
-    new_ensemble_rf <- predict(object =  ensemble_train_rf_fit , newdata = new_ensemble)
+    new_ensemble_rf <- predict(object = ensemble_train_rf_fit, newdata = new_ensemble)
     new_ensemble_rda <- predict(object = ensemble_rda_train_fit, newdata = new_ensemble)
     new_ensemble_svm <- predict(object = ensemble_svm_train_fit, newdata = new_ensemble)
     new_ensemble_trees <- predict(object = ensemble_tree_train_fit, newdata = new_ensemble)
 
     new_data_results <- data.frame(
-      'True_Value' = newdata$y,
-      'ADA_Bag' = ADA_bag,
-      'ADA_Boost' = ADA_boost,
-      'Bagged_Random_Forest' = Bagged_Random_Forest,
-      'Bagging' = Bagging,
-      'C50' = C50,
-      'Flexible_Discriminant_Analysis' = Flexible_Discriminant_Analysis,
-      'Gaussian_Process' = Gaussian_Process,
-      'Least_Squares_Support_Vector_Machines' = Least_Squares_Support_Vector_Machines,
-      'Linear' = Linear,
-      'Mixture_Discriminant_Analysis' = Mixture_Discriminant_Analysis,
-      'Naive_Bayes' = Naive_Bayes,
-      'Partial_Least_Squares' = Partial_Least_Squares,
-      'Quadratic_Disrmininat_Analysis' = Quadratic_Discriminant_Analysis,
-      'Penalized_Discriminant_Analysis' = Penalized_Discriminant_Analysis,
-      'Random_Forest' = Random_Forest,
-      'Ranger' = Ranger,
-      'Reguarlized_Discriminant_Analysis' = Regularized_Discriminant_Analysis,
-      'RPart' = RPart,
-      'Support_Vector_Machines' = Support_Vector_Machines,
-      'Trees' = Trees,
-      'Ensemble_ADA_Bag' = new_ensemble_adabag,
-      'Ensemble_ADA_Boost' = new_ensemble_adaboost,
-      'Ensemble_Bagged_Cart' = new_ensemble_bagged_cart,
-      'Ensemble_Bagged_Random_Forest' = new_ensemble_bag_rf,
-      'Ensemble_C50' = new_ensemble_C50,
-      'Ensemble_Naive_Bayes' = new_ensemble_n_bayes,
-      'Ensemble_Random_Forest' = new_ensemble_rf,
-      'Ensemble_Regularized_Discrmininat_Analysis' = new_ensemble_rda$class,
-      'Ensemble_Support_Vector_Machines' = new_ensemble_svm
+      "True_Value" = newdata$y,
+      "ADA_Bag" = ADA_bag,
+      "ADA_Boost" = ADA_boost,
+      "Bagged_Random_Forest" = Bagged_Random_Forest,
+      "Bagging" = Bagging,
+      "C50" = C50,
+      "Flexible_Discriminant_Analysis" = Flexible_Discriminant_Analysis,
+      "Gaussian_Process" = Gaussian_Process,
+      "Least_Squares_Support_Vector_Machines" = Least_Squares_Support_Vector_Machines,
+      "Linear" = Linear,
+      "Mixture_Discriminant_Analysis" = Mixture_Discriminant_Analysis,
+      "Naive_Bayes" = Naive_Bayes,
+      "Partial_Least_Squares" = Partial_Least_Squares,
+      "Quadratic_Disrmininat_Analysis" = Quadratic_Discriminant_Analysis,
+      "Penalized_Discriminant_Analysis" = Penalized_Discriminant_Analysis,
+      "Random_Forest" = Random_Forest,
+      "Ranger" = Ranger,
+      "Reguarlized_Discriminant_Analysis" = Regularized_Discriminant_Analysis,
+      "RPart" = RPart,
+      "Support_Vector_Machines" = Support_Vector_Machines,
+      "Trees" = Trees,
+      "Ensemble_ADA_Bag" = new_ensemble_adabag,
+      "Ensemble_ADA_Boost" = new_ensemble_adaboost,
+      "Ensemble_Bagged_Cart" = new_ensemble_bagged_cart,
+      "Ensemble_Bagged_Random_Forest" = new_ensemble_bag_rf,
+      "Ensemble_C50" = new_ensemble_C50,
+      "Ensemble_Naive_Bayes" = new_ensemble_n_bayes,
+      "Ensemble_Random_Forest" = new_ensemble_rf,
+      "Ensemble_Regularized_Discrmininat_Analysis" = new_ensemble_rda$class,
+      "Ensemble_Support_Vector_Machines" = new_ensemble_svm
     )
 
     new_data_results <- t(new_data_results)
 
-    new_data_results <- reactable::reactable(new_data_results, searchable = TRUE, pagination = FALSE, wrap = TRUE, rownames = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
-                                             striped = TRUE, highlight = TRUE,  resizable = TRUE) %>%
+    new_data_results <- reactable::reactable(new_data_results,
+      searchable = TRUE, pagination = FALSE, wrap = TRUE, rownames = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
+      striped = TRUE, highlight = TRUE, resizable = TRUE
+    ) %>%
       add_title("New data results")
 
-    if(save_all_trained_models == "Y"){
+    if (save_all_trained_models == "Y") {
       adabag_train_fit <<- adabag_train_fit
       adaboost_train_fit <<- adaboost_train_fit
       bagging_train_fit <<- bagging_train_fit
@@ -2907,12 +2936,12 @@ if(use_parallel == "Y"){
       gausspr_train_fit <<- gausspr_train_fit
       lssvm_train_fit <<- lssvm_train_fit
       linear_train_fit <<- linear_train_fit
-      mda_train_fit <<-  mda_train_fit
+      mda_train_fit <<- mda_train_fit
       n_bayes_train_fit <<- n_bayes_train_fit
       pls_train_fit <<- pls_train_fit
       pda_train_fit <<- pda_train_fit
       qda_train_fit <<- qda_train_fit
-      rf_train_fit <<-  rf_train_fit
+      rf_train_fit <<- rf_train_fit
       ranger_train_fit <<- ranger_train_fit
       rda_train_fit <<- rda_train_fit
       rpart_train_fit <<- rpart_train_fit
@@ -2931,14 +2960,15 @@ if(use_parallel == "Y"){
       ensemble_rda_train_fit <<- ensemble_rda_train_fit
       ensemble_svm_train_fit <<- ensemble_svm_train_fit
       ensemble_tree_train_fit <<- ensemble_tree_train_fit
-
     }
 
-    return(list(Final_results, barchart, data_summary, data_dictionary, correlation_marix, display_pairs, boxplots, histograms,
-                summary_tables, accuracy_plot, new_data_results))
+    return(list(
+      Final_results, barchart, data_summary, data_dictionary, correlation_marix, display_pairs, boxplots, histograms,
+      summary_tables, accuracy_plot, new_data_results
+    ))
   }
 
-  if(save_all_trained_models == "Y"){
+  if (save_all_trained_models == "Y") {
     adabag_train_fit <<- adabag_train_fit
     adaboost_train_fit <<- adaboost_train_fit
     bagging_train_fit <<- bagging_train_fit
@@ -2948,11 +2978,11 @@ if(use_parallel == "Y"){
     gausspr_train_fit <<- gausspr_train_fit
     lssvm_train_fit <<- lssvm_train_fit
     linear_train_fit <<- linear_train_fit
-    mda_train_fit <<-  mda_train_fit
+    mda_train_fit <<- mda_train_fit
     n_bayes_train_fit <<- n_bayes_train_fit
     qda_train_fit <<- qda_train_fit
     pls_train_fit <<- pls_train_fit
-    rf_train_fit <<-  rf_train_fit
+    rf_train_fit <<- rf_train_fit
     ranger_train_fit <<- ranger_train_fit
     rda_train_fit <<- rda_train_fit
     rpart_train_fit <<- rpart_train_fit
@@ -2970,10 +3000,11 @@ if(use_parallel == "Y"){
     ensemble_rda_train_fit <<- ensemble_rda_train_fit
     ensemble_svm_train_fit <<- ensemble_svm_train_fit
     ensemble_tree_train_fit <<- ensemble_tree_train_fit
-
   }
 
 
-  return(list(Final_results, barchart, data_summary, data_dictionary, correlation_marix, display_pairs, boxplots, histograms,
-       summary_tables, accuracy_plot, total_plot))
+  return(list(
+    Final_results, barchart, data_summary, data_dictionary, correlation_marix, display_pairs, boxplots, histograms,
+    summary_tables, accuracy_plot, total_plot
+  ))
 }
