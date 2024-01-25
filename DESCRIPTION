@@ -2,7 +2,7 @@ Package: Ensembles
 Type: Package
 Title: Automates The Data Science Process for Numerical, Classification, Logistic and Time Series Data
 Version: 0.1.0
-Author: Russ Conte
+Authors@R: person("Russ", "Conte", email = "russconte@mac.com", role = c("aut", "cre"))
 Maintainer: Russ Conte <russconte@mac.com>
 Description: A system for solving problems of numerical, classification, logistic and forecasting (time series) data. You only provide the data, and one line of code to tell the package about the data
     and what you want returned, the package does everything else to build the optimal solution. This includes data visualizations, constructing individual models and indexed ensembles
