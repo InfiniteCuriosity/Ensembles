@@ -145,7 +145,7 @@
 #'
 #'
 #'
-#' Boston—This is a modified version of the famous Boston housing data set. The first five rows have been removed. This data set can be used with the NewBoston data set to show predictions on new data using the numerical function in the Ensembles package.
+#' Boston_Housing—This is a modified version of the famous Boston housing data set. The first five rows have been removed. This data set can be used with the NewBoston data set to show predictions on new data using the numerical function in the Ensembles package.
 #'
 #' This is a modified version of the famous Boston housing data set. The first five rows have been removed, we will use those to make predictions on new data. The data here is complete except for the first five rows.
 #' The data first appeared in a paper by David Harrison, Jr. and Daniel L. Rubenfeld, Hedonic housing Prices and the demand for clean air. This was published in March, 1978.
@@ -168,7 +168,7 @@
 #' }
 #'
 #' @source <https://www.researchgate.net/publication/4974606_Hedonic_housing_prices_and_the_demand_for_clean_air>
-"Boston"
+"Boston_Housing"
 
 
 #' NewBoston—This is the first five rows of the original Boston Housing data set. This can be used as new data, and the Boston data set as the original. The numerical function will return predictions on the new data.
@@ -246,3 +246,58 @@
 #'
 #' @source <https://data.bls.gov/timeseries/CES0000000001>
 "total_nonfarm"
+
+#' Monthly_Labor-This is a set of monthly time series reports from the United States Bureau of Labor Statistics. It lists the number of employees in each of the following areas:
+#' The current month, All_Employees, Construction, Education, Finance, Government, Information, Hospitality, Manufacturing, Oil_and_Gas, Retail, Temporary, and the Unemployment rate.
+#'
+#' @description
+#' These are 13 time series reports from the United States Bureau of Labor Statistics, all in one document.
+#'
+#' \describe{
+#' The original data is from the United States Department of Labor Statistics. The data consists of 14 columns: A Month column, 12 sections of the United States economy (such as Construction or Education),
+#' and the total unemployment rate for the nation.
+#'
+#' \item{Month}{The month being reported, starting with January 2006}
+#' \item{All_Employees}{The total number of non-farm employees for a specific month, series number: CES0000000001}
+#' \item{Construction}{The number of people working in Construction for that month, series number: CES2000000001}
+#' \item{Education}{The number of people working in Education for that month, series number: CES6500000001}
+#' \item{Finance}{The number of people working in Finance for that month, series number: CES5500000001}
+#' \item{Government}{The number of people working in government for that month, series number: CES9000000001}
+#' \item{Information}{The number of people working in Information for that month, series number: CES5000000001}
+#' \item{Hospitality}{The number of people working in Hospitality for that month, series number: CES7000000001}
+#' \item{Manufacturing}{The number of people working in Manufacturing for that month, series number: CES3000000001}
+#' \item{Oil_and_Gas}{The number of people working in Oil and Gas for that month, series number: CES1021100001}
+#' \item{Prof_Svcs}{The number of people working in Professional Services for that month, series number: CES6000000001}
+#' \item{Tempoary}{The number of people working in the tempoary staffing industry that month, series number: CES6056132001}
+#' \item{Unemployment}{The national (United States) unemployment rate for that month, LNS14000000}
+#' }
+#' @source <https://data.bls.gov/>
+"Monthly_Labor"
+
+#'
+#' Monthly_Labor_Change-This is a set of 1-month change reports for the monthly time series reports from the United States Bureau of Labor Statistics. It lists the 1-month change in the number of employees in each of the following areas:
+#' The current month, All_Employees, Construction, Education, Finance, Government, Information, Hospitality, Manufacturing, Oil_and_Gas, Retail, Temporary, and the Unemployment rate.
+#'
+#' @description
+#' These are 13 time series reports from the United States Bureau of Labor Statistics, all in one document.
+#'
+#' \describe{
+#' The original data is from the United States Department of Labor Statistics. The data consists of 14 columns: A Month column, 12 sections of the United States economy (such as Construction or Education),
+#' and the total unemployment rate for the nation. This data reports the one-month change in the data
+#'
+#' \item{Month}{The month being reported, starting with January 2006}
+#' \item{All_Employees}{The total number of non-farm employees for a specific month, series number: CES0000000001}
+#' \item{Construction}{The number of people working in Construction for that month, series number: CES2000000001}
+#' \item{Education}{The number of people working in Education for that month, series number: CES6500000001}
+#' \item{Finance}{The number of people working in Finance for that month, series number: CES5500000001}
+#' \item{Government}{The number of people working in government for that month, series number: CES9000000001}
+#' \item{Information}{The number of people working in Information for that month, series number: CES5000000001}
+#' \item{Hospitality}{The number of people working in Hospitality for that month, series number: CES7000000001}
+#' \item{Manufacturing}{The number of people working in Manufacturing for that month, series number: CES3000000001}
+#' \item{Oil_and_Gas}{The number of people working in Oil and Gas for that month, series number: CES1021100001}
+#' \item{Prof_Svcs}{The number of people working in Professional Services for that month, series number: CES6000000001}
+#' \item{Tempoary}{The number of people working in the tempoary staffing industry that month, series number: CES6056132001}
+#' \item{Unemployment}{The national (United States) unemployment rate for that month, LNS14000000}
+#'  }
+#' @source <https://data.bls.gov/>
+"Monthly_Labor_Change"

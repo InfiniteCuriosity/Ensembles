@@ -8,10 +8,9 @@ Description: A system for solving problems of numerical, classification, logisti
     and what you want returned, the package does everything else to build the optimal solution. This includes data visualizations, constructing individual models and indexed ensembles
     using R and Python, creating regular learning and deep learning models, creating summary charts, tables and graphics, resampling as many times as you want, saving trained
     models (if you want) for future use or to share, predicting on totally new data (if you want), and removing highly correlated predictors in the ensembles
-    (at any level you want, such as removing all features correlated above 0.95). The result is that the user receives a wide range of totally comprehensive solutions
+    (at any level you want, such as removing all features in the ensembles correlated above 0.95). The result is that the user receives a wide range of solutions
     to any numerical, classification, logistic or time series data set. Because the package creates indexed ensembles, the results from the Ensembles package
-    typically meet or beat many published results by a wide margin. The vignetees in the Ensembles package provide examples where the Ensemble package beats other
-    published results, including Kaggle contests by college students, by a wide margin. It is very strongly suggest start with the vignettes.
+    typically meet or beat many published results by a wide margin.
 License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
