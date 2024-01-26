@@ -50,13 +50,9 @@ You can install the development version of Ensembles like so:
 ``` r
 devtools::install_github("InfiniteCuriosity/Ensembles")
 #> Downloading GitHub repo InfiniteCuriosity/Ensembles@HEAD
-#> xgboost (1.7.6.1 -> 1.7.7.1) [CRAN]
-#> Installing 1 packages: xgboost
 #> 
-#> The downloaded binary packages are in
-#>  /var/folders/2c/hvxqjjcn3sq5lcshxhv8wnsw0000gp/T//RtmpYWe2yq/downloaded_packages
 #> ── R CMD build ─────────────────────────────────────────────────────────────────
-#>      checking for file ‘/private/var/folders/2c/hvxqjjcn3sq5lcshxhv8wnsw0000gp/T/RtmpYWe2yq/remotes10d5106f32d9/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/2c/hvxqjjcn3sq5lcshxhv8wnsw0000gp/T/RtmpYWe2yq/remotes10d5106f32d9/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’
+#>      checking for file ‘/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/Rtmp63f0hV/remotes10de92017c6a/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/Rtmp63f0hV/remotes10de92017c6a/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’
 #>   ─  preparing ‘Ensembles’:
 #>      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
 #>   ─  checking for LF line-endings in source and make files and shell scripts
