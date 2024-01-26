@@ -11,7 +11,7 @@ Description: A system for solving problems of numerical, classification, logisti
     (at any level you want, such as removing all features in the ensembles correlated above 0.95). The result is that the user receives a wide range of solutions
     to any numerical, classification, logistic or time series data set. Because the package creates indexed ensembles, the results from the Ensembles package
     typically meet or beat many published results by a wide margin.
-License: GPL (>= 3) + file LICENSE
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
