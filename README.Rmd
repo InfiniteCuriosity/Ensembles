@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/InfiniteCuriosity/Ensembles/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/InfiniteCuriosity/Ensembles/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
 My favorite solutions always involve addressing real problems from real customers. I've managed multi-million dollar accounts for Fortune 1000 companies, hired more than 10,000 people, and worked in (and ran) several non-profit organizations (some volunteer, some paid). The value that data science can bring to organizations is crystal clear to me based on my extensive experience. However, in looking for data science solutions to real customer issues, I could not find what I was looking for, so I made it myself.

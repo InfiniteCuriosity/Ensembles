@@ -4,6 +4,9 @@
 # Ensembles: The data science set of tools I always wanted but could not find anywhere, so I made it myself.
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/InfiniteCuriosity/Ensembles/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/InfiniteCuriosity/Ensembles/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
 My favorite solutions always involve addressing real problems from real
@@ -50,16 +53,24 @@ You can install the development version of Ensembles like so:
 ``` r
 devtools::install_github("InfiniteCuriosity/Ensembles")
 #> Downloading GitHub repo InfiniteCuriosity/Ensembles@HEAD
+#> httpuv  (1.6.13 -> 1.6.14) [CRAN]
+#> listenv (0.9.0  -> 0.9.1 ) [CRAN]
+#> tsibble (1.1.3  -> 1.1.4 ) [CRAN]
+#> Installing 3 packages: httpuv, listenv, tsibble
+#> Installing packages into '/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/RtmpybISCo/temp_libpath38a265b71aab'
+#> (as 'lib' is unspecified)
 #> 
+#> The downloaded binary packages are in
+#>  /var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T//RtmpKgEJwG/downloaded_packages
 #> ── R CMD build ─────────────────────────────────────────────────────────────────
-#>      checking for file ‘/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/Rtmp63f0hV/remotes10de92017c6a/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/Rtmp63f0hV/remotes10de92017c6a/InfiniteCuriosity-Ensembles-35e6393/DESCRIPTION’
-#>   ─  preparing ‘Ensembles’:
-#>      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-#>   ─  checking for LF line-endings in source and make files and shell scripts
-#>   ─  checking for empty or unneeded directories
-#>   ─  building ‘Ensembles_0.1.0.tar.gz’
-#>      
-#> 
+#> * checking for file ‘/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/RtmpKgEJwG/remotes3bc16e381719/InfiniteCuriosity-Ensembles-4ea9299/DESCRIPTION’ ... OK
+#> * preparing ‘Ensembles’:
+#> * checking DESCRIPTION meta-information ... OK
+#> * checking for LF line-endings in source and make files and shell scripts
+#> * checking for empty or unneeded directories
+#> * building ‘Ensembles_0.1.0.tar.gz’
+#> Installing package into '/private/var/folders/xv/cqn_nl890vx7jgr4tpq5dsj40000gq/T/RtmpybISCo/temp_libpath38a265b71aab'
+#> (as 'lib' is unspecified)
 ```
 
 ## Basic Example: Numerical analysis
