@@ -6,19 +6,22 @@
 \usage{
 forecasting(
   time_series_data,
-  number_of_intervals_to_forecast,
-  use_parallel = c("Y", "N"),
-  time_interval = c("Q", "M", "W")
+  train_amount,
+  number,
+  time_interval = c("Q", "M", "W"),
+  use_parallel = c("Y", "N")
 )
 }
 \arguments{
 \item{time_series_data}{a time series}
 
-\item{number_of_intervals_to_forecast}{the number of intervals, such as months or weeks, that are going to be forecast}
+\item{train_amount}{The amount for the training set. For example, 0.60 is 60 percent.}
+
+\item{number}{Number of time intervals to forecast. For example, 3.}
+
+\item{time_interval}{user states whether the time interval is quarterly ("Q"), monthly ("M"), or weekly ("W").}
 
 \item{use_parallel}{"Y" or "N" for parallel processing}
-
-\item{time_interval}{user states whether the time interval is quarterly, monthly or weekly.}
 }
 \value{
 A series of summary reports and visualizations to fully describe the time series: Forecast accuracy, forecast numbers, forecast plot, innovation residuals,

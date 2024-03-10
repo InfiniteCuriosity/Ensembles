@@ -3,7 +3,7 @@
 #' @param data data can be a CSV file or within an R package, such as MASS::Boston
 #' @param colnum a column number in your data
 #' @param numresamples the number of resamples
-#' @param how_to_handle_strings 0: No strings, 1: Factor values
+#' @param how_to_handle_strings 0: No strings, 1: Factor values, 2: One-hot encoding, 3: One-hot encoding AND jitter
 #' @param do_you_have_new_data "Y" or "N". If "Y", then you will be asked for the new data
 #' @param save_all_trained_models "Y" or "N". If "Y", then places all the trained models in the Environment
 #' @param remove_ensemble_correlations_greater_than Enter a number to remove correlations in the ensembles
@@ -18,6 +18,7 @@
 #' @importFrom arm bayesglm
 #' @importFrom brnn brnn
 #' @importFrom broom tidy
+#' @importFrom caret dummyVars
 #' @importFrom corrplot corrplot
 #' @importFrom Cubist cubist
 #' @importFrom dplyr all_of arrange relocate rename last_col n_distinct filter %>% mutate_if
@@ -42,7 +43,7 @@
 #' @importFrom readr read_lines
 #' @importFrom rpart rpart
 #' @importFrom stats as.formula cor sd predict residuals
-#' @importFrom tidyr gather
+#' @importFrom tidyr gather pivot_longer
 #' @importFrom tree tree cv.tree misclass.tree
 #' @importFrom utils tail str
 #' @importFrom xgboost xgb.DMatrix xgb.train
@@ -85,6 +86,31 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
     newdata <- dplyr::mutate_if(newdata, is.character, as.factor)
     newdata <- dplyr::mutate_if(newdata, is.factor, as.numeric)
   }
+
+  if (how_to_handle_strings == 2) {
+    dummy <- caret::dummyVars(" ~ .", data=df)
+    df <- data.frame(predict(dummy, newdata=df))
+  }
+
+  if (how_to_handle_strings == 2 && do_you_have_new_data == "Y") {
+    dummy <- caret::dummyVars(" ~ .", data=newdata)
+    newdata <- data.frame(predict(dummy, newdata=newdata))
+  }
+
+  if (how_to_handle_strings == 3) {
+    dummy <- caret::dummyVars(" ~ .", data=df)
+    df <- data.frame(predict(dummy, newdata=df))
+    df <- data.frame(lapply(df, jitter))
+  }
+
+  if (how_to_handle_strings == 3 && do_you_have_new_data == "Y") {
+    dummy <- caret::dummyVars(" ~ .", data=newdata)
+    newdata <- data.frame(predict(dummy, newdata=newdata))
+    newdata <- data.frame(lapply(newdata, jitter))
+  }
+
+
+head_df <- head(df, n = 10)
 
   ## Set baseline RMSE and Standard Deviation (SD) based on the full data set
   actual_RMSE <- Metrics::rmse(actual = df$y, predicted = df$y)
@@ -133,6 +159,14 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
     ggplot2::geom_histogram(bins = round(nrow(df1) / 10)) +
     ggplot2::facet_wrap(. ~ cols, scales = "free") +
     ggplot2::labs(title = "Histograms of each numeric column. Each bar = 10 rows of data")
+
+  predictor_vs_target <- df %>%
+    tidyr::gather(-y, key = "var", value = "value") %>%
+    ggplot2::ggplot(aes(x = value, y = y)) +
+    ggplot2::geom_point() +
+    ggplot2::facet_wrap(~ var, scales = "free") +
+    ggplot2::theme_bw()+
+    ggplot2::labs(title = "y (predictor variable) vs target variables")
 
 
   #### Full analysis starts here ####
@@ -801,8 +835,13 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
   count <- 0
   model <- 0
   mallows_cp <- 0
+  Overfitting <- 0
+  Duration <- 0
+  Model <- 0
+
 
   for (i in 1:numresamples) {
+    print(paste0("Resampling number ", i, " of ", numresamples, sep = ','))
     idx <- sample(seq(1, 3), size = nrow(df), replace = TRUE, prob = c(train_amount, test_amount, validation_amount))
     train <- df[idx == 1, ]
     test <- df[idx == 2, ]
@@ -1668,6 +1707,8 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
     ensemble$Row_mean <- rowMeans(ensemble)
     ensemble$y_ensemble <- c(test$y, validation$y)
     y_ensemble <- c(test$y, validation$y)
+
+    print("Working on the Ensembles section")
 
 
     if (remove_ensemble_correlations_greater_than > 0) {
@@ -3418,6 +3459,25 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
   ) %>%
     reactablefmtr::add_title("RMSE, means, fitting, model summaries of the train, test and validation sets")
 
+
+  accuracy_barchart <- ggplot2::ggplot(summary_results, aes(x = reorder(Model, Mean_holdout_RMSE), y = Mean_holdout_RMSE)) +
+    ggplot2::geom_col()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust=1)) +
+    ggplot2::labs(x = "Model", y = "Holdout RMSE Mean", title = "Model accuracy by RMSE, lower is better") +
+    ggplot2::geom_text(aes(label = Mean_holdout_RMSE), vjust = -0.5, hjust = -0.5, angle = 90)
+
+  overfitting_barchart <- ggplot2::ggplot(summary_results, aes(x = reorder(Model, Overfitting), y = Overfitting)) +
+    ggplot2::geom_col()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust=1)) +
+    ggplot2::labs(x = "Model", y = "Over or Under Fitting", title = "Over or Under Fitting, closer to 1 is better") +
+    ggplot2::geom_text(aes(label = Overfitting), vjust = 0,hjust = -0.5, angle = 90)
+
+  duration_barchart <- ggplot2::ggplot(summary_results, aes(x = reorder(Model, Duration), y = Duration)) +
+    ggplot2::geom_col()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust=1)) +
+    ggplot2::labs(x = "Model", y = "Duration", title = "Duration, shorter is better") +
+    ggplot2::geom_text(aes(label = Duration), vjust = 0,hjust = -0.5, angle = 90)
+
   data_visualizations <- summary_results[2, 1]
 
   if (data_visualizations[1] == "Bagged Random Forest") {
@@ -4126,8 +4186,9 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
 
     str(df)
     return(list(
-      "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "histograms" = histograms, "boxplots" = boxplots, "final_results_table" = final_results,
-      "data_correlation" = M1, "data_summary" = data_summary, "head_of_ensemble" = head_ensemble, "ensemble_correlation" = cor(ensemble),
+      "head_of_data" = head_df, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "histograms" = histograms, "boxplots" = boxplots, "predictor_vs_target" = predictor_vs_target,
+      "final_results_table" = final_results, "data_correlation" = M1, "data_summary" = data_summary, "head_of_ensemble" = head_ensemble, "ensemble_correlation" = cor(ensemble),
+      "accuracy_barchart" = accuracy_barchart, "duration_barchart" = duration_barchart, "overfitting_barchart" = overfitting_barchart,
       "colnum" = colnum, "numresamples" = numresamples, "do_you_have_new_data" = predictions_of_new_data, "save_all_trained_models" = save_all_trained_models,
       "remove_ensemble_correlations_greater_than" = remove_ensemble_correlations_greater_than, "train_amount" = train_amount,
       "test_amount" = test_amount, "validation_amount" = validation_amount
@@ -4181,8 +4242,9 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
 
   str(df)
   return(list(
-    "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "histograms" = histograms, "boxplots" = boxplots, "final_results_table" = final_results,
+    "head_of_data" = head_df, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "histograms" = histograms, "boxplots" = boxplots, "predictor_vs_target" = predictor_vs_target, "final_results_table" = final_results,
     "data_correlation" = M1, "data_summary" = data_summary, "head_of_ensemble" = head_ensemble, "ensemble_correlation" = cor(ensemble),
+    "accuracy_barchart" = accuracy_barchart, "duration_barchart" = duration_barchart, "overfitting_barchart" = overfitting_barchart,
     "colnum" = colnum, "numresamples" = numresamples, "save_all_trained_modesl" = save_all_trained_models,
     "remove_ensemble_correlations_greater_than" = remove_ensemble_correlations_greater_than,
     "train_amount" = train_amount, "test_amount" = test_amount, "validation_amount" = validation_amount

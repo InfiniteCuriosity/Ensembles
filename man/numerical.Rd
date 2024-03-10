@@ -25,7 +25,7 @@ numerical(
 
 \item{numresamples}{the number of resamples}
 
-\item{how_to_handle_strings}{0: No strings, 1: Factor values}
+\item{how_to_handle_strings}{0: No strings, 1: Factor values, 2: One-hot encoding, 3: One-hot encoding AND jitter}
 
 \item{do_you_have_new_data}{"Y" or "N". If "Y", then you will be asked for the new data}
 

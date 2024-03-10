@@ -5,7 +5,7 @@
 \alias{lebron}
 \title{lebron—A logistic data set, with the result indicating whether or not LeBron scored on each shot in the data set. Automatically solvable using the Ensembles package.}
 \format{
-An object of class \code{data.frame} with 1533 rows and 15 columns.
+An object of class \code{data.frame} with 1533 rows and 12 columns.
 }
 \usage{
 lebron

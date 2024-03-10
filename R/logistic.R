@@ -60,6 +60,8 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
 
   df <- df[sample(1:nrow(df)), ] # randomizes the rows
 
+  head_df <- head(df)
+
   if (how_to_handle_strings == 1) {
     df <- dplyr::mutate_if(df, is.character, as.factor)
     df <- dplyr::mutate_if(df, is.factor, as.numeric)
@@ -1377,14 +1379,30 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
 
   Accuracy <- 0
 
+  type <- 0
+
+  name <- 0
+
+  perc <- 0
+
+  Duration <- 0
+
+  Model <- 0
+
   #### Barchart of the data against y ####
-  barchart <- df %>%
-    dplyr::mutate(dplyr::across(-y, as.numeric)) %>%
-    tidyr::pivot_longer(-y, names_to = "var", values_to = "value") %>%
-    ggplot2::ggplot(aes(x = y, y = value)) +
+  barchart <-df %>%
+    tidyr::pivot_longer(!y) %>%
+    dplyr::summarise(dplyr::across(value, sum), .by = c(y, name)) %>%
+    dplyr::mutate(perc = proportions(value), .by = c(name)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = y, y = value)) +
     ggplot2::geom_col() +
-    ggplot2::facet_wrap(~var, scales = "free") +
-    ggplot2::labs(title = "Numerical values against y")
+    ggplot2::geom_text(aes(label = value),
+              vjust = -.5) +
+    ggplot2::geom_text(aes(label = scales::percent(perc),
+                  vjust = 1.5),
+              col = "white") +
+    ggplot2::facet_wrap(~ name, scales = "free") +
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.1, 0.25)))
 
   #### Summary of the dataset ####
   data_summary <- summary(df)
@@ -1432,6 +1450,7 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
   # Break into train, test and validation sets
 
   for (i in 1:numresamples) {
+    print(paste0("Resampling number ", i, " of ", numresamples, sep = ','))
     df <- df[sample(1:nrow(df)), ] # randomize the rows again!
 
     index <- sample(c(1:3), nrow(df), replace = TRUE, prob = c(train_amount, test_amount, validation_amount))
@@ -3732,6 +3751,8 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
     ensemble_y_test <- ensemble_test$y
     ensemble_y_validation <- ensemble_validation$y
 
+    print("Working on the Ensembles section")
+
     #### Ensemble Using Adaboost ####
     ensemble_adaboost_start <- Sys.time()
 
@@ -4909,175 +4930,175 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
   adaboost_ROC <- pROC::ggroc(adaboost_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Adaboost ", "(AUC = ", adaboost_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   bag_rf_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(bag_rf_test_predictions[, 2], bag_rf_validation_predictions[, 2])) - 1)
   bag_rf_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(bag_rf_test_predictions[, 2], bag_rf_validation_predictions[, 2])) - 1)), 4)
   bag_rf_ROC <- pROC::ggroc(bag_rf_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Bagged Random Forest ", "(AUC = ", bag_rf_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   bagging_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(bagging_test_predictions[, 2], bagging_validation_predictions[, 2])))
   bagging_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(bagging_test_predictions[, 2], bagging_validation_predictions[, 2])) - 1)), 4)
   bagging_ROC <- pROC::ggroc(bagging_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Bagging ", "(AUC = ", bagging_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   bayesglm_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(bayesglm_test_predictions, bayesglm_validation_predictions)))
   bayesglm_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(bayesglm_test_predictions, bayesglm_validation_predictions)) - 1)), 4)
   bayesglm_ROC <- pROC::ggroc(bayesglm_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("BayesGLM ", "(AUC = ", bayesglm_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   bayesrnn_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(bayesrnn_test_predictions, bayesrnn_validation_predictions)))
   bayesrnn_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(bayesrnn_test_predictions, bayesrnn_validation_predictions)) - 1)), 4)
   bayesrnn_ROC <- pROC::ggroc(bayesrnn_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("BayesRNN ", "(AUC = ", bayesrnn_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   C50_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(C50_test_predictions, C50_validation_predictions)))
   C50_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(C50_test_predictions, C50_validation_predictions)) - 1)), 4)
   C50_ROC <- pROC::ggroc(C50_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("C50 ROC curve ", "(AUC = ", C50_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   cubist_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(cubist_test_pred, cubist_validation_pred)))
   cubist_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(cubist_test_pred, cubist_validation_pred)) - 1)), 4)
   cubist_ROC <- pROC::ggroc(cubist_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Cubist ", "(AUC = ", cubist_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   fda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(fda_test_predictions, fda_validation_predictions)))
   fda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(fda_test_predictions, fda_validation_predictions)) - 1)), 4)
   fda_ROC <- pROC::ggroc(fda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Flexible Discriminant Analysis ", "(AUC = ", fda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   gam_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(gam_test_predictions, gam_validation_predictions)))
   gam_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(gam_test_predictions, gam_validation_predictions)) - 1)), 4)
   gam_ROC <- pROC::ggroc(gam_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Generalized Additve Models ", "(AUC = ", gam_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   gb_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(gb_test_predictions, gb_validation_predictions)))
   gb_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(gb_test_predictions, gb_validation_predictions)) - 1)), 4)
   gb_ROC <- pROC::ggroc(gb_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Gradient Boosted ", "(AUC = ", gb_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   glm_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), c(glm_test_pred, glm_validation_pred))
   glm_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(glm_test_pred, glm_validation_pred)) - 1)), 4)
   glm_ROC <- pROC::ggroc(glm_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Generalized Linear Models ", "(AUC = ", glm_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   linear_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(linear_test_pred, linear_validation_pred)))
   linear_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(linear_test_pred, linear_validation_pred)))), 4)
   linear_ROC <- pROC::ggroc(linear_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Linear Models ROC ", "(AUC = ", linear_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   lda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(lda_test_pred$class, lda_validation_pred$class)))
   lda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(lda_test_pred$class, lda_validation_pred$class)) - 1)), 4)
   lda_ROC <- pROC::ggroc(lda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Linear Discriminant Analysis ", "(AUC = ", lda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   mda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(mda_test_predictions, mda_validation_predictions)))
   mda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(mda_test_predictions, mda_validation_predictions)) - 1)), 4)
   mda_ROC <- pROC::ggroc(mda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Mixture Discriminant Analysis ", "(AUC = ", mda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   n_bayes_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(n_bayes_test_predictions, n_bayes_validation_predictions)))
   n_bayes_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(n_bayes_test_predictions, n_bayes_validation_predictions)) - 1)), 4)
   n_bayes_ROC <- pROC::ggroc(n_bayes_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Naive Bayes ", "(AUC = ", n_bayes_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   pls_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(pls_test_pred, pls_validation_pred)))
   pls_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(pls_test_pred, pls_validation_pred)) - 1)), 4)
   pls_ROC <- pROC::ggroc(pls_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Partial Least Squares ", "(AUC = ", pls_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   pda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(pda_test_pred, pda_validation_pred)))
   pda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(pda_test_pred, pda_validation_pred)) - 1)), 4)
   pda_ROC <- pROC::ggroc(pda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Penalized Discriiminant Analysis ", "(AUC = ", pda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   qda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(qda_test_pred$class, qda_validation_pred$class)))
   qda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(qda_test_pred$class, qda_validation_pred$class)) - 1)), 4)
   qda_ROC <- pROC::ggroc(qda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Quadratic Discriminant Analysis ", "(AUC = ", qda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   rf_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(rf_test_probabilities, rf_validation_probabilities)))
   rf_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(rf_test_probabilities, rf_validation_probabilities)) - 1)), 4)
   rf_ROC <- pROC::ggroc(rf_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Random Forest ", "(AUC = ", rf_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ranger_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(ranger_test_pred, ranger_validation_pred)))
   ranger_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(ranger_test_pred, ranger_validation_pred)) - 1)), 4)
   ranger_ROC <- pROC::ggroc(ranger_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ranger ", "(AUC = ", ranger_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   rda_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(rda_test_pred$class, rda_validation_pred$class)))
   rda_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(rda_test_pred$class, rda_validation_pred$class)) - 1)), 4)
   rda_ROC <- pROC::ggroc(rda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Regularized Discrmininant Analysis ", "(AUC = ", rda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   rpart_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(rpart_test_pred, rpart_validation_pred)))
   rpart_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(rpart_test_pred, rpart_validation_pred)) - 1)), 4)
   rpart_ROC <- pROC::ggroc(rpart_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("RPart ", "(AUC = ", rpart_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   svm_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(svm_test_pred, svm_validation_pred)))
   svm_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(svm_test_pred, svm_validation_pred)) - 1)), 4)
   svm_ROC <- pROC::ggroc(svm_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Support Vector Machines ", "(AUC = ", svm_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   tree_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(tree_test_pred, tree_validation_pred)))
   tree_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(tree_test_pred, tree_validation_pred)) - 1)), 4)
   tree_ROC <- pROC::ggroc(tree_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Trees ", "(AUC = ", tree_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   xgb_roc_obj <- pROC::roc(as.numeric(c(test01$y, validation01$y)), as.numeric(c(xgb_test_pred, xgb_validation_pred)))
   xgb_auc <- round((pROC::auc(c(test01$y, validation01$y), as.numeric(c(xgb_test_pred, xgb_validation_pred)) - 1)), 4)
   xgb_ROC <- pROC::ggroc(xgb_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("XGBoost ", "(AUC = ", xgb_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
 
   ensemble_adaboost_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_adaboost_test_pred, ensemble_adaboost_validation_pred)))
@@ -5085,91 +5106,91 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
   ensemble_adaboost_ROC <- pROC::ggroc(ensemble_adaboost_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Adaboostoost ", "(AUC = ", ensemble_adaboost_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_bagging_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_bagging_test_pred[, 2], ensemble_bagging_validation_pred[, 2])))
   ensemble_bagging_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_bagging_test_pred[, 2], ensemble_bagging_validation_pred[, 2])) - 1)), 4)
   ensemble_bagging_ROC <- pROC::ggroc(ensemble_bagging_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Bagging ", "(AUC = ", ensemble_bagging_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_C50_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_C50_test_pred[, 2], ensemble_C50_validation_pred[, 2])))
   ensemble_C50_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_C50_test_pred[, 2], ensemble_C50_validation_pred[, 2])) - 1)), 4)
   ensemble_C50_ROC <- pROC::ggroc(ensemble_C50_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble_C50 ", "(AUC = ", ensemble_C50_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_gb_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_gb_test_pred, ensemble_gb_validation_pred)))
   ensemble_gb_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_gb_test_pred, ensemble_gb_validation_pred)) - 1)), 4)
   ensemble_gb_ROC <- pROC::ggroc(ensemble_gb_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Gradient Boosted ", "(AUC = ", ensemble_gb_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_pls_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_pls_test_pred, ensemble_pls_validation_pred)))
   ensemble_pls_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_pls_test_pred, ensemble_pls_validation_pred)) - 1)), 4)
   ensemble_pls_ROC <- pROC::ggroc(ensemble_pls_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble PLS ", "(AUC = ", ensemble_pls_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_pda_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_pda_test_pred, ensemble_pda_validation_pred)))
   ensemble_pda_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_pda_test_pred, ensemble_pda_validation_pred)))), 4)
   ensemble_pda_ROC <- pROC::ggroc(ensemble_pda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble PDA ", "(AUC = ", ensemble_pda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_rf_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_rf_test_pred[, 2], ensemble_rf_validation_pred[, 2])))
   ensemble_rf_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_rf_test_pred[, 2], ensemble_rf_validation_pred[, 2])) - 1)), 4)
   ensemble_rf_ROC <- pROC::ggroc(ensemble_rf_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Random Forest ", "(AUC = ", ensemble_rf_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_ranger_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_ranger_test_pred, ensemble_ranger_validation_pred)))
   ensemble_ranger_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_ranger_test_pred, ensemble_ranger_validation_pred)) - 1)), 4)
   ensemble_ranger_ROC <- pROC::ggroc(ensemble_ranger_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Ranger ", "(AUC = ", ensemble_ranger_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_rda_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_rda_test_pred$posterior[, 2], ensemble_rda_validation_pred$posterior[, 2])))
   ensemble_rda_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_rda_test_pred$posterior[, 2], ensemble_rda_validation_pred$posterior[, 2])) - 1)), 4)
   ensemble_rda_ROC <- pROC::ggroc(ensemble_rda_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble RDA ROC curve ", "(AUC = ", ensemble_rda_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_rpart_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_rpart_test_pred, ensemble_rpart_validation_pred)))
   ensemble_rpart_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_rpart_test_pred, ensemble_rpart_validation_pred)))), 4)
   ensemble_rpart_ROC <- pROC::ggroc(ensemble_rpart_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Rpart ", "(AUC = ", ensemble_rpart_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_svm_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_svm_test_pred, ensemble_svm_validation_pred)))
   ensemble_svm_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_svm_test_pred, ensemble_svm_validation_pred)))), 4)
   ensemble_svm_ROC <- pROC::ggroc(ensemble_svm_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble SVM ", "(AUC = ", ensemble_svm_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_tree_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_tree_test_pred, ensemble_tree_validation_pred)))
   ensemble_tree_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_tree_test_pred, ensemble_tree_validation_pred)) - 1)), 4)
   ensemble_tree_ROC <- pROC::ggroc(ensemble_tree_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble Trees ", "(AUC = ", ensemble_tree_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
   ensemble_xgb_roc_obj <- pROC::roc(as.numeric(c(ensemble_test$y, ensemble_validation$y)), as.numeric(c(ensemble_xgb_test_pred, ensemble_xgb_validation_pred)))
   ensemble_xgb_auc <- round((pROC::auc(c(ensemble_test$y, ensemble_validation$y), as.numeric(c(ensemble_xgb_test_pred, ensemble_xgb_validation_pred)) - 1)), 4)
   ensemble_xgb_ROC <- pROC::ggroc(ensemble_xgb_roc_obj, color = "steelblue", size = 2) +
     ggplot2::ggtitle(paste0("Ensemble XGBoost ", "(AUC = ", ensemble_xgb_auc, ")")) +
     ggplot2::labs(x = "Specificity", y = "Sensitivity") +
-    ggplot2::geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey")
+    ggplot2::annotate("segment", x = 1, xend = 0, y = 0, yend = 1, color = "grey")
 
 
   ROC_curves <- gridExtra::grid.arrange(adaboost_ROC, bag_rf_ROC, bagging_ROC,
@@ -5331,12 +5352,23 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
 
   holdout_results <- holdout_results %>% dplyr::arrange(desc(Accuracy))
 
-  holdout_results <- reactable::reactable(holdout_results,
+  holdout_results_final <- reactable::reactable(holdout_results,
     searchable = TRUE, pagination = FALSE, wrap = TRUE, rownames = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
     striped = TRUE, highlight = TRUE, resizable = TRUE
   ) %>%
     reactablefmtr::add_title("Mean of Holdout results")
 
+  accuracy_barchart <- ggplot2::ggplot(holdout_results, aes(x = reorder(Model, desc(Accuracy)), y = Accuracy)) +
+    ggplot2::geom_col()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust=1)) +
+    ggplot2::labs(x = "Model", y = "Holdout Accuracy by Model", title = "Model accuracy, higher is better") +
+    ggplot2::geom_text(aes(label = Accuracy), vjust = -0.5, hjust = -0.5, angle = 90)
+
+  duration_barchart <- ggplot2::ggplot(holdout_results, aes(x = reorder(Model, Duration), y = Duration)) +
+    ggplot2::geom_col()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust=1)) +
+    ggplot2::labs(x = "Model", y = "Duration", title = "Duration, shorter is better") +
+    ggplot2::geom_text(aes(label = Duration), vjust = 0,hjust = -0.5, angle = 90)
 
   accuracy_data <- data.frame(
     "count" = 1:numresamples,
@@ -5716,10 +5748,11 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
     )
 
     return(list(
-      "Summary_tables" = summary_tables, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "ROC_curves" = ROC_curves,
+      "Head_of_data" = head_df, "Summary_tables" = summary_tables, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "accuracy_barchart" = accuracy_barchart,
+      "Duration_barchart" = duration_barchart, "ROC_curves" = ROC_curves,
       "Boxplots" = boxplots, "Barchart" = barchart, "Display_pairs" = display_pairs, "Correlation_table" = M1,
       "Ensemble Correlation" = ensemble_correlation, "New_data_results" = new_data_results,
-      "Data_Summary" = data_summary, "Holdout_results" = holdout_results, "Data_dictionary" = str(df),
+      "Data_Summary" = data_summary, "Holdout_results" = holdout_results_final, "Data_dictionary" = str(df),
       "How_to_handle_strings" = how_to_handle_strings, "Train_amount" = train_amount, "Test_amount" = test_amount, "Validation_amount" = validation_amount
     ))
   }
@@ -5740,10 +5773,11 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
   )
 
   return(list(
-    "Summary_tables" = summary_tables, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "ROC_curves" = ROC_curves,
+    "Head_of_data" = head_df, "Summary_tables" = summary_tables, "accuracy_plot" = accuracy_plot, "total_plot" = total_plot, "accuracy_barchart" = accuracy_barchart,
+    "Duration_barchart" = duration_barchart, "ROC_curves" = ROC_curves,
     "Boxplots" = boxplots, "Barchart" = barchart, "Display_pairs" = display_pairs, "Correlation_table" = M1,
     "Ensemble Correlation" = ensemble_correlation,
-    "Data_Summary" = data_summary, "Holdout_results" = holdout_results, "Data_dictionary" = str(df),
+    "Data_Summary" = data_summary, "Holdout_results" = holdout_results_final, "Data_dictionary" = str(df),
     "How_to_handle_strings" = how_to_handle_strings, "Train_amount" = train_amount, "Test_amount" = test_amount, "Validation_amount" = validation_amount
   ))
 }
