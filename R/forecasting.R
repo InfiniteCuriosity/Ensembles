@@ -2468,12 +2468,15 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
     reactablefmtr::add_title("Time series error results, click each column name to sort.")
 
   Table_of_predictions <- list(
-    Arima1_predictions, Arima2_predictions, Arima3_predictions, Arima4_predictions, Deterministic_predictions, Drift_predictions, Ensembles_predictions, Ets1_predictions, Ets2_predictions,
-    Ets3_predictions, Ets4_predictions, Holt_Winters_Additive_predictions, Holt_Winters_Multiplicative_predictions, Holt_Winters_Damped_predictions,
-    linear1_predictions, linear2_predictions, linear3_predictions, linear4_predictions, Mean_predictions, Naive_predictions,
-    Neuralnet1_predictions, Neuralnet2_predictions, Neuralnet3_predictions, Neuralnet4_predictions,
-    Prophet_Additive_predictions, Prophet_Multiplicative_predictions,
-    SNaive_predictions, Stochastic_predictions)
+    'Arima1' = Arima1_predictions, 'Arima2' = Arima2_predictions, 'Arima3' = Arima3_predictions, 'Arima4' = Arima4_predictions, 'Deterministic' = Deterministic_predictions,
+    'Drift' = Drift_predictions, 'Ensembles' = Ensembles_predictions, 'Ets1' = Ets1_predictions, 'Ets2' = Ets2_predictions,
+    'Ets3' = Ets3_predictions, 'Ets4' = Ets4_predictions, 'Holt_Winters_Additive' = Holt_Winters_Additive_predictions,
+    'Holt_Winters_Multiplicative' = Holt_Winters_Multiplicative_predictions, 'Holt_Winters_Damped' = Holt_Winters_Damped_predictions,
+    'Linear1' = linear1_predictions, 'Linear2' = linear2_predictions, 'Linear3' = linear3_predictions, 'Linear4' = linear4_predictions,
+    'Mean' = Mean_predictions, 'Naive' = Naive_predictions,
+    'Neuralnet1' = Neuralnet1_predictions, 'Neuralnet2' = Neuralnet2_predictions, 'Neuralnet3' = Neuralnet3_predictions, 'Neuralnet4' = Neuralnet4_predictions,
+    'Prophet_Additive' = Prophet_Additive_predictions, 'Prophet_Multiplicative' = Prophet_Multiplicative_predictions,
+    'SNaive' = SNaive_predictions, 'Stochastic' = Stochastic_predictions)
 
   Table_of_predictions
 
