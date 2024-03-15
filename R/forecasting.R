@@ -2461,9 +2461,9 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
   Error_Results <- Error_Results %>%
     dplyr::arrange(RMSE)
 
-  Error_Results <- reactable::reactable(Error_Results,
-                                        searchable = TRUE, pagination = FALSE, wrap = TRUE, rownames = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
-                                        striped = TRUE, highlight = TRUE, resizable = TRUE
+  Error_Results_table <- reactable::reactable(Error_Results,
+                                              searchable = TRUE, pagination = FALSE, wrap = TRUE, rownames = TRUE, fullWidth = TRUE, filterable = TRUE, bordered = TRUE,
+                                              striped = TRUE, highlight = TRUE, resizable = TRUE
   ) %>%
     reactablefmtr::add_title("Time series error results, click each column name to sort.")
 
@@ -2480,28 +2480,27 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
 
   Table_of_predictions
 
-  gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$RMSE), ][1, 1]])) %>%
+  best_results_rmse <- gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$RMSE), ][1, 1]])) %>%
     gt::tab_header(
       title = "Best results RMSE"
     )
 
 
-  gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$Mean_Absolute_Error), ][1, 1]])) %>%
+  best_results_mae <- gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$Mean_Absolute_Error), ][1, 1]])) %>%
     gt::tab_header(
       title = "Best Results Mean AbsoluteError"
     )
 
-  gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Error - 0)), ][1, 1]])) %>%
+  best_results_mean_error <- gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Error - 0)), ][1, 1]])) %>%
     gt::tab_header(
       title = "Best Results Mean Error"
     )
 
 
-  gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Percentage_Error - 0)), ][1, 1]])) %>%
+  best_results_mpe <- gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Percentage_Error - 0)), ][1, 1]])) %>%
     gt::tab_header(
       title = "Best Results Mean Percentage Error"
     )
-
 
 
   #<----- Graphical Results by Model -------------------->
@@ -2584,7 +2583,9 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
     Neuralnet1_plot_of_forecast, Neuralnet2_plot_of_forecast, Neuralnet3_plot_of_forecast, Neuralnet4_plot_of_forecast,
     Prophet_Additive_plot_of_forecast, Prophet_Multiplicative_plot_of_forecast, SNaive_plot_of_forecast, Stochastic_plot_of_forecast)
 
-  return(list('All_Time_Series_Features' = all_time_series_features, 'Seasonal_plots' = seasonal_plots, 'Lag_plots' = lag_plots, 'Quartiles' = time_series_quartiles, 'Quintiles'= time_series_difference_quartiles, 'Baseline_Full' = baseline_full, 'Baseline_Difference' = baseline_difference, 'Head_of_Time_Series' = head_of_time_series, tail_of_time_series,
-    'Basic_Graph' = basic_graph, 'Full_Time_Series' = full_time_series, 'Full_timr_Sreires_2' = full_time_series_2, 'Value_and_trend' = value_and_trend, 'Value_and_seasonally_adjusted' = value_and_seasonally_adjusted, 'Difference_Plot_1' = difference_plot1, 'Difference_plot_2' = difference_plot2,
-    'Difference_plot_3' = difference_plot3, 'Difference_plot_4' = difference_plot4, 'Tim_Series_Anamolies' = Print_Time_Series_Anomalies, 'Time_Series_Difference_Anomolies' = Print_Time_Series_Difference_Anomalies, 'GGPairs_1' = ggpairs1, 'GGPairs_2' = ggpairs2, 'Error_Results' = Error_Results, 'Table_of_predictions' = Table_of_predictions))
+  return(  list('All_Time_Series_Features' = all_time_series_features, 'Seasonal_plots' = seasonal_plots, 'Lag_plots' = lag_plots, 'Quartiles' = time_series_quartiles, 'Quintiles'= time_series_difference_quartiles, 'Baseline_Full' = baseline_full, 'Baseline_Difference' = baseline_difference, 'Head_of_Time_Series' = head_of_time_series, tail_of_time_series,
+                'Basic_Graph' = basic_graph, 'Full_Time_Series' = full_time_series, 'Full_timr_Series_2' = full_time_series_2, 'Value_and_trend' = value_and_trend, 'Value_and_seasonally_adjusted' = value_and_seasonally_adjusted, 'Difference_Plot_1' = difference_plot1, 'Difference_plot_2' = difference_plot2,
+                'Best_Results_RMSE' = best_results_rmse, 'Best_Results_Mean_Absolute_Error' = best_results_mae, 'Best_Results_Mean_Error' = best_results_mean_error,
+                'Best_Results_Mean_Percentage_Error' = best_results_mpe,
+                'Difference_plot_3' = difference_plot3, 'Difference_plot_4' = difference_plot4, 'Time_Series_Anamolies' = Print_Time_Series_Anomalies, 'Time_Series_Difference_Anomolies' = Print_Time_Series_Difference_Anomalies, 'GGPairs_1' = ggpairs1, 'GGPairs_2' = ggpairs2, 'Error_Results' = Error_Results_table, 'Table_of_predictions' = Table_of_predictions))
 }
