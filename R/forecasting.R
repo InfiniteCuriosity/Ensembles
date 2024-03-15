@@ -2477,6 +2477,29 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
 
   Table_of_predictions
 
+  gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$RMSE), ][1, 1]])) %>%
+    gt::tab_header(
+      title = "Best results RMSE"
+    )
+
+
+  gt::gt(as.data.frame(Table_of_predictions[Error_Results[order(Error_Results$Mean_Absolute_Error), ][1, 1]])) %>%
+    gt::tab_header(
+      title = "Best Results Mean AbsoluteError"
+    )
+
+  gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Error - 0)), ][1, 1]])) %>%
+    gt::tab_header(
+      title = "Best Results Mean Error"
+    )
+
+
+  gt::gt(as.data.frame(Table_of_predictions[Error_Results[which.min(abs(Error_Results$Mean_Percentage_Error - 0)), ][1, 1]])) %>%
+    gt::tab_header(
+      title = "Best Results Mean Percentage Error"
+    )
+
+
 
   #<----- Graphical Results by Model -------------------->
   gridExtra::grid.arrange(Arima1_predicted_vs_actual, Arima1_predicted_vs_residual, Arima1_histogram_of_residuals, Arima1_innovation_residuals, Arima1_ACF, Arima1_plot_of_forecast, ncol = 2)
