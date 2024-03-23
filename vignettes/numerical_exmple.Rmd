@@ -1,0 +1,297 @@
+------------------------------------------------------------------------
+
+---
+title: "numerical"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{numerical}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Example 1: The fully automated solution in the Ensembles package beats all 699 entries from college students by more than 90%. Let's test that claim (spoiler alert: it's true), and show how you can use the same processes for any numerical data.
+
+Welcome to the numerical example of the Ensembles package. This vignette will walk you through each of the steps and features of the numerical function, allowing you to beat the best score in a Kaggle contest by 699 college students. The student results were the Spring term project for 49 teams with 699 entries. This solution using the Ensembles package will beat all submission, best their best solution by more than 90% and only require one line of code. The student results will be our baseline against which we will compare our results.
+
+### Background on the Boston housing data set
+
+The Boston Housing data set is a collection of data about 505 houses in the Boston, Massachusetts area. The data is taken from the 1970 United States census, and has been studied by numerous researchers and used in many competitions. The original research was published in 1978.
+
+Let's start by taking a quick look at the first ten rows of the Boston Housing data set:
+
+```{r head of the Boston Housing data set}
+library(MASS)
+head(MASS::Boston, n = 10)
+```
+
+The data contains 14 columns. All of the columns are numerical. We will be modeling the 'medv' column. This column measures the median value of the home.
+
+The only thing you have to do is make sure the data does not contain any missing values, and that the values are numbers. We'll deal with the common case where the values are not numbers in a different vignette.
+
+Let's start by checking if there are any missing values:
+
+```{r check for any missing values}
+sum(is.na(MASS::Boston))
+```
+
+Great! There are no missing values. Now let's look at the type of data we have in the data set to see if they are all numbers:
+
+```{r check the type of data in the Boston housing data set}
+str(MASS::Boston)
+```
+
+Excellent! All of the values are numbers, so we're ready to go. We begin by attaching the Ensembles package.
+
+```{r setup install the Ensembles package}
+library(Ensembles)
+```
+
+### Minimal example of numerical analysis
+
+Now we'll do our one line of code to have the Ensembles package complete the analysis. We'll only use the first three functions (where is the data, what is the column number and how many times do we want to resample the data, as well as setting up the amounts for train, test and validation. We will set all the other values so they are not used this time. We will look at them in the next example)
+
+Let's look at what 'data', 'colnum', and 'numresamples' do.
+
+The 'data' can either be a a data set from an R package, or a link to a csv file. The csv file can be on your system, or online. In this example we are using MASS::Boston as our data.
+
+'colnum' is the column number. In this case we are looking at column 14, the median value of the house. This is the same as the column number by the college students, and virtually everyone else who works on the Boston housing data set.
+
+'numresamples' is the first of several features to make the results reproducible. The numerical function will randomly resample the data the number of times you chose. For now we have selected 5, but you may pick any value you wish. As you will see, a higher the number of resamples will make the results more reproducible.
+
+For now we will skip these four features and come back to those in a little bit: 'how_to_handle_strings', 'do_you_have_new_data', 'save_all_trained_models', and 'remove_ensemble_correlations_greater_than'. In our example here, they are all set to values where they will be used this time, we will use them in a few minutes.
+
+### Setting up train, test and validation amounts.
+
+Set the train, test and validation to values you wish to use. A very good set of values is:
+
+train: 0.60
+
+test: 0.20
+
+validation: 0.20
+
+We have used these values in this example.
+
+### Once it starts, what does this function do?
+
+1.  It sets up the number of resamples you chose. That number is 5 in this example.
+2.  It randomly and automatically separates the data (in this case Boston housing) into train, test and validation sets.
+3.  It randomizes the rows for each resample. This helps with reproducibility.
+4.  It automatically builds models on 23 solution methods (full list below). The models are in alphabetical order, to make it easier to find and use. The function will fit the model on the training data, then make predictions on both the test and validation data. It will measure the root mean squared error for each model. It will save each result, so that a mean result of all the resamples may be determined and reported back to the user.
+
+### Automatically building 23 individual models. These are a combination of R and Python, regular learning and deep learning models.
+
+1.  Bagged Random Forest
+2.  Bagging
+3.  Bayes Generalized Linear Models
+4.  Bayes Regularization for feed forward neural networks
+5.  Boosted Random Forest
+6.  Cubist
+7.  Elastic Net
+8.  GAM (Generalized Additive Models) with Smoothing Splines
+9.  Gradient Boosted
+10. K-Nearest Neighbors
+11. Lasso Net
+12. Linear
+13. LQS
+14. Neuralnet
+15. Partial Least Squares
+16. Principal Components Analysis
+17. Random Forest
+18. Ridge Net
+19. Robust Regression
+20. Rpart (also known as cart)
+21. Support Vector Machines
+22. Trees
+23. XGBoost
+
+### Automatically building the indexed ensembles from the holdout (testing and validation) predictions
+
+Next the function is going to build an ensemble of the predictions of the *holdout data* from the models. The ensemble is indexed so that the y values in the ensemble exactly match the corresponding row in the data.
+
+Note the far left column. That is not row numbers, it is row names. As this image shows, the rows have been randomized.
+
+### Automatically indexing the ensemble, even when the rows are repeatedly randomized
+
+The final column in the ensemble, y_ensemble, exactly matches the corresponding value in the original data for that specific row. This is the actual value. In this case it is the corresponding medv value in the Boston Housing data set. Let us test that claim. The row name is the far left number, the medv value is y_ensemble. Here is the test:
+
+### Automatically weighting the ensemble
+
+Each column in the ensemble (such as BagRF, XGBoost, etc.) is weighted by the reciprocal of the RMSE value. Thus more accurate models get higher weights, and less accurate models get lower weights. For example, 1/2 is much larger than 1/10. This is the principle that applies to weighting the ensembles.
+
+### Automatically splitting the ensemble into train, test and validation sets.
+
+The function will automatically split the ensemble into train, test and validation amounts, based on the initial values set by the user. In our example those values are 60% train, 20% test and 20% validation. Thus the function will automatically create:
+
+ensemble_train
+
+ensemble_test
+
+ensemble_validation
+
+### Automatically building ensemble models
+
+From here it is very easy to build models using the ensemble data set. It is done exactly the same way as individual data sets. Fit the model on the ensemble training set, and then make predictions on the ensemble test and validation sets, and measure root mean squared error. For example, here is how the cubist model is used to fit the ensemble data:
+
+Cubist::cubist(x = ensemble_train[,1:ncol(ensemble_train)-1], y = ensemble_train\$y_ensemble)
+
+### Full list of ensemble models
+
+1.  Ensemble Bagged Random Forest
+2.  Ensemble Bagging
+3.  Ensemble BayesGLM
+4.  Ensemble BayesRNN
+5.  Ensemble Boosted Random Forest
+6.  Ensemble Cubist
+7.  Ensemble Elastic
+8.  Ensemble Gradient Boosted
+9.  Ensemble K-Nearest Neighbors
+10. Ensemble Lasso
+11. Ensemble Linear
+12. Ensemble Random Forest
+13. Ensemble Ridge
+14. Ensemble RPart
+15. Ensemble Support Vector Machines
+16. Ensemble Trees
+17. Ensemble XGBoost
+
+### Automatically measuring root mean squared error (RMSE) on the ensemble holdout data
+
+This is exactly the same as with the individual models. The function measures the root mean squared error on the ensemble holdout data, testing and validation. It saves each one of those values.
+
+### Automatically loop back to the beginning, randomize the rows again, repeat as many times as the user chose (in our example it is 5 times).
+
+### Automatically report summary results, tables, graphs, and charts to the user
+
+The numerical function automatically reports all of these results to the user:
+
+Automatic results reported in the Console:
+
+1.  Data dictionary of the original data
+2.  Correlation table of the original data (in this case Boston Housing):
+3.  Data summary (minimum values, means, etc.) of the original data:
+4.  Head of the weighted and indexed ensemble:
+5.  Correlation table of the ensemble. Note that we are using very strongly correlated predictors in this example. Many of the correlations are above 0.90. If you look at the final column, y_ensemble, it will be seen that many of the several have correlations above 0.95. That will be addressed in the next example.
+
+#### Automatic results reported in Plots:
+
+1.  Pairwise scatter plots and histograms of the numerical data
+
+2.  Correlation plot as numbers in color.
+
+3.  Correlation plot as circles in color
+
+4.  Best model: Results of Predicted vs Actual, Residuals vs Actual, Histogram of Residuals, all in one image
+
+5.  Best model: Actual vs predicted
+
+6.  Best model: Actual vs residuals
+
+7.  Best model: Histogram of residuals
+
+8.  40 models, accuracy for each model, and each sample
+
+9.  40 models, accuracy for each model, also shows train, test and validation results
+
+10. Histogram of each numeric column.
+
+11. Boxplot of each numeric column
+
+12. Summary report, sorted by root mean squared error. Note that the lowest root mean squared error in our example is 0.1281.
+
+### Did the automated results using the Ensembles package beat the best results by the college students in their 699 Kaggle submissions by more than 90%? Let's test that claim:
+
+The college student scores are here: <https://www.kaggle.com/competitions/uou-g03784-2022-spring/leaderboard>
+
+The lowest root mean squared error for the college students (out of 699 entries) is 2.41243.
+
+The lowest score for the fully automated solution using the Ensembles package is 0.1281. This means the automated solution using the Ensembles package is a 94.69% decrease compared to the college students. According to the website <https://www.calculatorsoup.com/calculators/algebra/percent-change-calculator.php>
+
+Test passed.
+
+Let's run this in real time:
+
+```{r Run numerical function in real time}
+
+library(Ensembles)
+
+numerical(data = MASS::Boston,
+          colnum = 14,
+          numresamples = 2,
+          how_to_handle_strings = 0,
+          do_you_have_new_data = "N",
+          save_all_trained_models = "N",
+          remove_ensemble_correlations_greater_than = 0.90,
+          use_parallel = "Y",
+          train_amount = 0.60,
+          test_amount = 0.20,
+          validation_amount = 0.20)
+
+warnings() # to confirm this runs without any warnings or errors
+
+```
+
+### Part 2: The Four Advanced Features in the Numerical Function
+
+#### 2a What if there are categorical values in the data?
+
+Many data sets have data that includes both numerical and categorical values. The only requirement from the Ensembles function is that the categorical values are factors. Once that is done, everything else will run as the example above (Boston Housing).
+
+When we run the numerical function, we will choose to convert the strings to numbers, so the numerical function will run without any incident.
+
+#### 2b. How to reduce highly correlated predictors in the ensembles
+
+Continuing with the Carseats data set, the numerical function gives a report of the correlation values in the ensemble. That value can be adjusted to any value you wish. Let's start at the beginning.
+
+What are the correlation values in the current analysis? Here is an image of part of the correlation table, and it is easy to see many of these values are very high, for example, above 0.95:
+
+This is an extremely easy problem to solve using the Ensembles package. Simply chose the maximum value for the correlation, enter it into the values, and the function does the rest.
+
+For example, let's say we wanted only correlation values below 0.95. The function would be run like this:
+
+The resulting ensemble does not have any predictors above 0.95. Let's test that claim:\
+\
+This results in a slight decrease in holdout RMSE, but not by a lot:
+
+#### 2c. What if you (or a colleague) have new data?
+
+This is the acid test of data science: How well does the solution work on totally new data. The Ensembles function makes that easy to do, and there are data sets in the package to demonstrate the results.
+
+We'll use a modified version of the Boston housing data set for our example. The Ensembles package contains a version of the Boston housing data set with the first five rows removed. We will run the analysis on this data set, and then test the 40 models on the first five rows.
+
+Let's start by doing the analysis on the Boston housing data set in the Ensembles package. Note that we are going to make "Y" when it asks if we have new
+
+When this code is run, the first step the function asks is the location of the new data. It can be on your computer or online. In this example, I'll use the NewBoston data that is part of the Ensembles package. Here's what the data looks like:\
+\
+When the function is run, the Console asks for the location of the new
+
+The most accurate result (lowest RMSE) this time is Ensemble BayesGLM. Here's the evidence:
+
+Let's test how well the model performed on the totally new data, compared to the mean error by the college students noted above. We'll compare the top row (true values) and the bottom row in this image (predictions from the Ensemble BayesGLM model):\
+
+|                     | House 1 | House 2 | House 3 | House 4 | House 5 |
+|---------------------|---------|---------|---------|---------|---------|
+| True Value          | 24      | 21.6    | 34.7    | 33.4    | 36.2    |
+| BayesGLM Prediction | 24.7526 | 22.3231 | 35.7576 | 34.2442 | 37.1687 |
+| Error               | .7526   | 0.7231  | -1.0576 | -0.8442 | 0.9687  |
+
+The mean error is -0.7526 for the predictions for the five houses. Remember that the mean error for the college students was 2.412, and this error on unseen data is much less than the mean error by the best college students in that example.
+
+Test passed.
+
+#### 2d. Saving all trained models
+
+Last, it's extremely easy to save all the trained models. Simply chose "Y" to the question save_all_trained_models. The function saves all the trained models in the user's environment, which can be saved or shared with others. Here is the top of what that looks like:
+
+### Summary:
+
+The numeric function within the Ensembles package allows you do to analysis of numeric data. It automatically makes 40 models, randomizes the rows, uses R and Python, and presents comprehensive results for you to use. The advanced features also allow you to make predictions on unseen data, save all trained models, set the correlation for the ensemble to any value you wish, and convert strings to numbers so the function will run.
+
+Best wishes with the package!
