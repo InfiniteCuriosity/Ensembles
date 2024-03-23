@@ -72,5 +72,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-URL: https://www.dataaio.com/
+URL: https://www.dataaio.com/, https://github.com/InfiniteCuriosity/Ensembles
 BugReports: https://github.com/InfiniteCuriosity/Ensembles/issues
