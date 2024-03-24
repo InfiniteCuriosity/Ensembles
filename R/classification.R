@@ -39,6 +39,7 @@ classification <- function(data, colnum, numresamples, do_you_have_new_data = c(
                            use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount) {
 
 #' @examples
+#' data <- ISLR::Carseats
 #' classification(data = ISLR::Carseats,
 #' colnum = 7,
 #' numresamples = 2,

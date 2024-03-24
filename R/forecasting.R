@@ -34,7 +34,7 @@ forecasting <- function(time_series_data, train_amount, number, time_interval = 
 
 
 #' @examples
-#' data <- all_employees (note this example will take a few minutes to run, the function does give updates of which model is build built)
+#' data <- total_nonfarm
 #' forecasting(time_series_data = total_nonfarm,
 #'              train_amount = 0.60,
 #'              number = 3,
