@@ -39,18 +39,17 @@ classification <- function(data, colnum, numresamples, do_you_have_new_data = c(
                            use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount) {
 
 #' @examples
-#' data <- ISLR::Carseats
-#' classification(data = ISLR::Carseats,
-#' colnum = 7,
-#' numresamples = 2,
-#' do_you_have_new_data = "N",
-#' how_to_handle_strings = 0,
-#' save_all_trained_models = "N,
-#' use_parallel = "Y",
-#' train_amount = 0.60,
-#' test_amount = 0.20,
-#' validation_amount = 0.20
-#' )
+#' classification(data = dry_beans_small,
+#'                 colnum = 17,
+#'                 numresamples = 2,
+#'                 do_you_have_new_data = "N",
+#'                 how_to_handle_strings = 0,
+#'                 save_all_trained_models = "N,
+#'                 use_parallel = "Y",
+#'                 train_amount = 0.60,
+#'                 test_amount = 0.20,
+#'                 validation_amount = 0.20
+#'                 )
 #'
 #'
 
