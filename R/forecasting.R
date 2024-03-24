@@ -12,15 +12,6 @@
 #'
 #' @export forecasting
 #'
-#' @examples
-#' data <- all_employees (note this example will take a few minutes to run, the function does give updates of which model is build built)
-forecasting(time_series_data = total_nonfarm,
-            train_amount = 0.60,
-            number = 3,
-            time_interval = "M",
-            use_parallel = "Y")
-warnings() # Verfies everything ran without any warnings or errors.
-#'
 #'
 #'
 #' @importFrom dplyr arrange bind_rows count filter mutate select
@@ -40,6 +31,15 @@ warnings() # Verfies everything ran without any warnings or errors.
 #' @importFrom utils tail head
 
 forecasting <- function(time_series_data, train_amount, number, time_interval = c("Q", "M", "W"), use_parallel = c("Y", "N")) {
+
+
+#' @examples
+#' data <- all_employees (note this example will take a few minutes to run, the function does give updates of which model is build built)
+#' forecasting(time_series_data = total_nonfarm,
+#'              train_amount = 0.60,
+#'              number = 3,
+#'              time_interval = "M",
+#'              use_parallel = "Y") # note this example takes several minutes to run on a normal computer.
 
   use_parallel <- 0
   no_cores <- 0

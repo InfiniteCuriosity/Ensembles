@@ -12,21 +12,7 @@
 #' @param validation_amount Set the amount for the validation data
 #'
 #' @returns a full analysis, including data visualizations, statistical summaries, and a full report on the results of 35 models on the data
-#' @export classification, so other users can use this function
-#'
-#' @examples
-#' data <- ISLR::Carseats
-classification(data = ISLR::Carseats,
-               colnum = 7,
-               numresamples = 2,
-               do_you_have_new_data = "N",
-               how_to_handle_strings = 1,
-               save_all_trained_models = "N",
-               use_parallel = "Y",
-               train_amount = 0.60,
-               test_amount = 0.20,
-               validation_amount = 0.20)
-warnings() # Verifies everything ran without any warnings or errors
+#' @export classification
 #'
 #'
 #' @importFrom C50 C5.0
@@ -51,6 +37,20 @@ warnings() # Verifies everything ran without any warnings or errors
 
 classification <- function(data, colnum, numresamples, do_you_have_new_data = c("Y", "N"), how_to_handle_strings = c(0("No strings"), 1("Strings as factors")), save_all_trained_models = c("Y", "N"),
                            use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount) {
+
+#' @examples
+#' classification(data = ISLR::Carseats,
+#' colnum = 7,
+#' numresamples = 2,
+#' do_you_have_new_data = "N",
+#' how_to_handle_strings = 0,
+#' save_all_trained_models = "N,
+#' use_parallel = "Y",
+#' train_amount = 0.60,
+#' test_amount = 0.20,
+#' validation_amount = 0.20)
+#'
+
 use_parallel <- 0
 no_cores <- 0
 
