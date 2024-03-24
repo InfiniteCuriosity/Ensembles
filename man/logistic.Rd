@@ -59,5 +59,6 @@ logistic(data = diabetes,
         use_parallel = "Y",
         train_amount = 0.60,
         test_amount = 0.20,
-        validation_amount = 0.20)
+        validation_amount = 0.20
+        )
 }

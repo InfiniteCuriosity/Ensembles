@@ -60,7 +60,8 @@ logistic <- function(data, colnum, numresamples, save_all_trained_models = c("Y"
 #'         use_parallel = "Y",
 #'         train_amount = 0.60,
 #'         test_amount = 0.20,
-#'         validation_amount = 0.20)
+#'         validation_amount = 0.20
+#'         )
 
   use_parallel <- 0
   no_cores <- 0

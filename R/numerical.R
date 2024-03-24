@@ -65,7 +65,8 @@ numerical <- function(data, colnum, numresamples, how_to_handle_strings = c(0("n
 #'            use_parallel = "Y",
 #'            train_amount = 0.60,
 #'            test_amount = 0.20,
-#'            validation_amount = 0.20)
+#'            validation_amount = 0.20
+#'            )
 
 
   use_parallel <- 0
