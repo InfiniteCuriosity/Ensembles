@@ -18,8 +18,7 @@
 #' @importFrom fable ARIMA ETS MEAN NAIVE NNETAR RW SNAIVE TSLM
 #' @importFrom fabletools accuracy as_tsibble augment autoplot components features report
 #' @importFrom fable.prophet prophet
-#' @importFrom feasts gg_tsresiduals STL
-#' @importFrom fracdiff coef_hurst
+#' @importFrom feasts gg_tsresiduals box_pierce coef_hurst feat_acf feat_spectral feat_stl ljung_box longest_flat_spot unitroot_kpss unitroot_ndiffs unitroot_nsdiffs STL
 #' @importFrom ggplot2 aes facet_grid geom_line geom_hline geom_abline geom_point ggplot ggtitle guides labs scale_x_continuous scale_y_continuous theme xlab ylab
 #' @importFrom gt gt tab_header fmt_number fmt_percent
 #' @importFrom magrittr %>%
