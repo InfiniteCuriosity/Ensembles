@@ -44,3 +44,18 @@ a full analysis, including data visualizations, statistical summaries, and a ful
 \description{
 classification—function to perform classification analysis and return results to the user.
 }
+\examples{
+classification(data = dry_beans_small,
+                colnum = 17,
+                numresamples = 2,
+                do_you_have_new_data = "N",
+                how_to_handle_strings = 0,
+                save_all_trained_models = "N",
+                use_parallel = "Y",
+                train_amount = 0.60,
+                test_amount = 0.20,
+                validation_amount = 0.20
+                )
+
+
+}
