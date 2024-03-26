@@ -47,18 +47,3 @@ a real number
 \description{
 numerical—function to perform numerical analysis and return the results to the user
 }
-\examples{
-data <- MASS::Boston
-numerical(data = MASS::Boston,
-           colnum = 14,
-           numresamples = 2,
-           how_to_handle_strings = 0,
-           do_you_have_new_data = "N",
-           save_all_trained_models = "N",
-           remove_ensemble_correlations_greater_than = 0.95,
-           use_parallel = "Y",
-           train_amount = 0.60,
-           test_amount = 0.20,
-           validation_amount = 0.20
-           )
-}

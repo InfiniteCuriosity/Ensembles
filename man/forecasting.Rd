@@ -33,12 +33,3 @@ plot of best actual vs seasonally adjusted
 \description{
 forecasting—function to perform time series analysis and return the results to the user.
 }
-\examples{
-data <- total_nonfarm
-forecasting(time_series_data = total_nonfarm,
-             train_amount = 0.60,
-             number = 3,
-             time_interval = "M",
-             use_parallel = "Y"
-             ) # note this example takes several minutes to run on a normal computer.
-}

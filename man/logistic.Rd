@@ -47,18 +47,3 @@ a real number
 \description{
 logistic—function to perform logistic analysis and return the results to the user.
 }
-\examples{
-data <- diabetes
-logistic(data = diabetes,
-        colnum = 9,
-        numresamples = 2,
-        save_all_trained_models = "N",
-        how_to_handle_strings = 0,
-        do_you_have_new_data = "N",
-        remove_ensemble_correlations_greater_than = 0.90,
-        use_parallel = "Y",
-        train_amount = 0.60,
-        test_amount = 0.20,
-        validation_amount = 0.20
-        )
-}
