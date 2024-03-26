@@ -38,20 +38,6 @@
 classification <- function(data, colnum, numresamples, do_you_have_new_data = c("Y", "N"), how_to_handle_strings = c(0("No strings"), 1("Strings as factors")), save_all_trained_models = c("Y", "N"),
                            use_parallel = c("Y", "N"), train_amount, test_amount, validation_amount) {
 
-#' @examples
-#' classification(data = dry_beans_small,
-#'                 colnum = 17,
-#'                 numresamples = 2,
-#'                 do_you_have_new_data = "N",
-#'                 how_to_handle_strings = 0,
-#'                 save_all_trained_models = "N",
-#'                 use_parallel = "Y",
-#'                 train_amount = 0.60,
-#'                 test_amount = 0.20,
-#'                 validation_amount = 0.20
-#'                 )
-#'
-#'
 
 use_parallel <- 0
 no_cores <- 0
