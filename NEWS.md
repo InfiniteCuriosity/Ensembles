@@ -36,4 +36,4 @@ Classification Ensembles achieves 100% accuracy on the Carseats data set in the 
 Logistic: Ensembles achieve 100% accuracy several times over on the Pima Indians data set, measuring only on the holdout data.
 Forecasting: Achieves error of 0.0003451008 forecasting total number of employees from the United States Department of Labor Statistics, measuring only on the holdout data.
 
-The package is supported by a full website, and high quality instructional videos. The website is: https://www.dataaip.com. The videos are located: https://www.youtube.
+The package is supported by a full website, and high quality instructional videos. The website is: https://www.dataaip.com. The videos are located: https://www.youtube.com/@russconte8281
