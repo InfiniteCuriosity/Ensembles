@@ -1,6 +1,6 @@
 Package: Ensembles
 Type: Package
-Title: Automates The Data Science Process for Numerical, Classification, Logistic and Time Series Data
+Title: Automates the Data Science Process for Numerical, Classification, Logistic and Time Series Data
 Version: 0.2.0
 Authors@R: person("Russ", "Conte", email = "russconte@mac.com", role = c("aut", "cre", "cph"))
 Maintainer: Russ Conte <russconte@mac.com>
